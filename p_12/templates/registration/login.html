@@ -1,0 +1,22 @@
+<!-- This is using the url sign in cheat code. If I wanted to use
+a class view to login, I have it commented out in the views file  -->
+
+{% extends 'layout.html' %}
+
+{% block body %}
+
+  <div class="bounds">
+    <div class="grid-30 centered">
+      <h2>Sign In</h2>
+      <form>
+        <input type="email" placeholder="Email Address" />
+        <input type="password" placeholder="Password" />
+        <button class="button-primary">Sign In</button>
+        <a class="button" href="signup.html">Sign Up</a>
+      </form>
+    </div>
+  </div>
+
+{% endblock %}
+
+<!-- use the standard form.as_p above in the form. Also <form method="POST">  -->
