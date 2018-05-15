@@ -16,6 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from django.conf.urls import url, include
+from social import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -23,6 +24,9 @@ urlpatterns = [
     # this is for the login if we want to use it. You would do 
     # accounts/login/
     url(r'^accounts/', include('django.contrib.auth.urls')),
+    url(r'^accounts/signup/$', views.SignUp.as_view(), name="signup"),
+    url(r'^logout/$', views.LogoutView.as_view(), name='loggedout'),
+    
 ]
 
 

@@ -5,15 +5,16 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.urls import reverse_lazy
 from django.views import generic
+from django.shortcuts import render, get_object_or_404, redirect
 
+from django.contrib.auth.decorators import login_required
+from django.forms.models import modelformset_factory
+
+from . import models
 from . import forms 
 
-def signup(request):
-	return render(request, 'signup.html')
 
-def signin(request):
-	return render(request, 'signin.html')
-
+@login_required
 def index(request):
 	return render(request, 'index.html')
 
@@ -30,10 +31,124 @@ def project(request):
 	return render(request, 'project.html')
 
 def profile_edit(request):
-	return render(request, 'profile_edit.html')
+	previous_jobs = models.Application.objects.filter(
+		person_applying=request.user,
+		accepted=True, 
+		project__active=False)
+	try:
+		user_profile = models.Profile.objects.get(user=request.user)
+	except models.Profile.DoesNotExist:
+		user_profile = None
+	
+	Projects_form = modelformset_factory(
+		models.Project,
+		form=forms.ProfileMyProjectsForm,
+		can_delete=True
+		)
+	
+	Skills_form = modelformset_factory(
+		models.Skill,
+		form=forms.SkillForm,
+		can_delete=True)
+	
+	user_profile_form = forms.ProfileForm(instance=user_profile,prefix='user_profile')
+	if user_profile:
+		projects_formset = Projects_form(queryset=user_profile.projects.all(), prefix='projects_formset')
+		skills_formset = Skills_form(queryset=user_profile.skills.all(), prefix='skills_formset')
+	else:
+		projects_formset = Projects_form(prefix='projects_formset')
+		skills_formset = Skills_form(prefix='skills_formset')
+
+	if request.method == "POST":
+		if user_profile:
+			user_profile_form = forms.ProfileForm(request.POST, instance=user_profile, prefix='user_profile')
+			projects_formset = Projects_form(request.POST, queryset=user_profile.projects.all(), prefix='projects_formset')
+			skills_formset = Skills_form(request.POST, queryset=user_profile.skills.all(), prefix='skills_formset')
+		else:
+			print("*****************It used the else.")
+			user_profile_form = forms.ProfileForm(request.POST, prefix='user_profile')
+			projects_formset = Projects_form(request.POST, prefix='projects_formset')
+			skills_formset = Skills_form(request.POST,  prefix='skills_formset')
+		if user_profile_form.is_valid():
+			print("*****************Got to right before the projects_formset")
+			if projects_formset.is_valid():
+				print("*****************Got to right after the projects_formset")
+				if skills_formset.is_valid():
+					final_user_profile = user_profile_form.save(commit=False)
+					final_user_profile.user = request.user 
+					final_user_profile.save()
+
+					for project in projects_formset:
+						if project.is_valid():
+							if project.cleaned_data:
+								#****I may need to add 'user', etc. 
+								project = project.save()
+								final_user_profile.projects.add(project)
+
+					for skill in skills_formset:
+						if skill.is_valid():
+							if skill.cleaned_data:
+								#****I may need to add 'user', etc.
+								name = skill.cleaned_data['name'].lower()
+								print("*****************skill name {}.".format(name))
+								try:
+									skill = models.Skill.objects.get(name=name)
+									print("*****************skill did exist.")
+								except models.Skill.DoesNotExist:
+									skill = skill.save()
+									print("*****************skill did not exist.")
+								final_user_profile.skills.add(skill)
+								print("*****************saved the skill.")
+
+					return redirect('base:home')
+
+	return render(
+		request, 'profile_edit.html', 
+		{'user_profile_form': user_profile_form, 'projects_formset': projects_formset, 'skills_formset': skills_formset, 'previous_jobs': previous_jobs })
+					
+
+
+#******I need to make a form validator that if the profile project does not already
+#****** exist with the url given then throw an error. 
+
+
+
+
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 def profile(request):
-	return render(request, 'profile.html')
+	pass
+
+def profile_new(request):
+	pass
+
+
+
+
+
 
 def applications(request):
 	return render(request, 'applications.html')
@@ -57,7 +172,7 @@ class LogoutView(generic.RedirectView):
 	"""Made this logout class so I can redirect to the 
 	home page. The automatic auth method redirects 
 	inappropriately """
-	url = reverse_lazy('home')
+	url = reverse_lazy('login')
 
 	def get(self, request, *args, **kwargs):
 		logout(request)
@@ -66,6 +181,6 @@ class LogoutView(generic.RedirectView):
 
 class SignUp(generic.CreateView):
 	form_class = forms.UserCreateForm
-	success_url = reverse_lazy('base:login')
-	template_name = 'signup.html'
+	success_url = reverse_lazy('login')
+	template_name = 'registration/signup.html'
 

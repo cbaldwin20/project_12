@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'widget_tweaks',
     'social',
 ]
 
@@ -125,3 +126,6 @@ LOGIN_REDIRECT_URL = "base:index"
 
 EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
 EMAIL_FILE_PATH = os.path.join(BASE_DIR, "sent_emails")
+
+LOGIN_URL = '/accounts/login/'
+LOGIN_REDIRECT_URL = '/'
