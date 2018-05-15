@@ -43,14 +43,14 @@ def profile_edit(request):
 	Projects_form = modelformset_factory(
 		models.Project,
 		form=forms.ProfileMyProjectsForm,
-		can_delete=True
+		
 		)
 	
 	Skills_form = modelformset_factory(
 		models.Skill,
 		form=forms.SkillForm,
-		can_delete=True)
-	
+		)
+	user_profile = models.Profile.objects.first()
 	user_profile_form = forms.ProfileForm(instance=user_profile,prefix='user_profile')
 	if user_profile:
 		projects_formset = Projects_form(queryset=user_profile.projects.all(), prefix='projects_formset')
@@ -61,12 +61,12 @@ def profile_edit(request):
 
 	if request.method == "POST":
 		if user_profile:
-			user_profile_form = forms.ProfileForm(request.POST, instance=user_profile, prefix='user_profile')
+			user_profile_form = forms.ProfileForm(request.POST, request.FILES, instance=user_profile, prefix='user_profile')
 			projects_formset = Projects_form(request.POST, queryset=user_profile.projects.all(), prefix='projects_formset')
 			skills_formset = Skills_form(request.POST, queryset=user_profile.skills.all(), prefix='skills_formset')
 		else:
 			print("*****************It used the else.")
-			user_profile_form = forms.ProfileForm(request.POST, prefix='user_profile')
+			user_profile_form = forms.ProfileForm(request.POST, request.FILES, prefix='user_profile')
 			projects_formset = Projects_form(request.POST, prefix='projects_formset')
 			skills_formset = Skills_form(request.POST,  prefix='skills_formset')
 		if user_profile_form.is_valid():
@@ -90,21 +90,30 @@ def profile_edit(request):
 							if skill.cleaned_data:
 								#****I may need to add 'user', etc.
 								name = skill.cleaned_data['name'].lower()
-								print("*****************skill name {}.".format(name))
-								try:
-									skill = models.Skill.objects.get(name=name)
-									print("*****************skill did exist.")
-								except models.Skill.DoesNotExist:
-									skill = skill.save()
-									print("*****************skill did not exist.")
-								final_user_profile.skills.add(skill)
-								print("*****************saved the skill.")
+								if name == "":
+									skill = skill.save(commit=False)
+									final_user_profile.skills.remove(skill)
+									print("*****************deleted the skill from the user profile.")
+								else:
+									print("*****************skill name {}.".format(name))
+									try:
+										skill_replace = models.Skill.objects.get(name=name)
+										print("*****************skill did exist.")
+									except models.Skill.DoesNotExist:
+										skill_replace = models.Skill.objects.create(name=name)
+										print("*****************skill did not exist.")
+									skill = skill.save(commit=False)
+									final_user_profile.skills.remove(skill)
+									final_user_profile.skills.add(skill_replace)
+									print("*****************saved the skill.")
+									
+									
 
 					return redirect('base:home')
 
 	return render(
 		request, 'profile_edit.html', 
-		{'user_profile_form': user_profile_form, 'projects_formset': projects_formset, 'skills_formset': skills_formset, 'previous_jobs': previous_jobs })
+		{'user_profile': user_profile, 'user_profile_form': user_profile_form, 'projects_formset': projects_formset, 'skills_formset': skills_formset, 'previous_jobs': previous_jobs })
 					
 
 

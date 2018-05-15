@@ -18,10 +18,11 @@ class UserCreateForm(UserCreationForm):
 
 class ProfileForm(forms.ModelForm):
 	class Meta:
-		fields = ("name", "description")
+		fields = ("name", "description", "image")
 		model = models.Profile
 
 class SkillForm(forms.ModelForm):
+	name = forms.CharField(required=False)
 	class Meta:
 		fields = ("name",)
 		model = models.Skill 

@@ -11,7 +11,7 @@
       </ul>
     </nav>
   </div>
-          <form method="POST">
+          <form method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
   <div class="bounds circle--page">
     <div class="circle--page--header circle--fluid">
@@ -56,17 +56,21 @@
         </tbody>
       </table>
     </div>
-
+{{ user_profile_form.image.errors }}
     <div class="grid-25 grid-push-5">
 
       <div class="circle--secondary--module">
         <div class="circle--primary--avatar">
+          <img src="{{ user_profile_form.instance.image.url }}" />
           <a class="button">
             Upload Photo
-            <input type="file">
+            
+            <input type="file" name="user_profile-image" id="id_user_profile_image">
+            
           </a>
         </div>
       </div>
+
 
       <div class="circle--secondary--module">
         <h4>My Skills</h4>
@@ -86,8 +90,8 @@
                     <a class="circle--clone--add">Add Skill</a>
             <a class="circle--clone--remove">Remove</a>
 
-            <li>delete: {{ skillform.DELETE }}</li>
             
+
           </li>
 
                   {% endfor %}
@@ -123,10 +127,7 @@
 
   </div>
  </form>
-
-
-                  
-
+         
 {% endblock %}
 
 
