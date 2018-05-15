@@ -31,10 +31,12 @@ def project(request):
 	return render(request, 'project.html')
 
 def profile_edit(request):
+	# 'previous_jobs' not used yet. 
 	previous_jobs = models.Application.objects.filter(
 		person_applying=request.user,
 		accepted=True, 
 		project__active=False)
+	# see if this user already has a profile. 
 	try:
 		user_profile = models.Profile.objects.get(user=request.user)
 	except models.Profile.DoesNotExist:
@@ -50,12 +52,16 @@ def profile_edit(request):
 		models.Skill,
 		form=forms.SkillForm,
 		)
-	user_profile = models.Profile.objects.first()
+	# this is the main profile. Is not a formset. 
 	user_profile_form = forms.ProfileForm(instance=user_profile,prefix='user_profile')
+
+	# if the user has a profile then get all the projects and skills of the user
+	# and put them into formsets. 
 	if user_profile:
 		projects_formset = Projects_form(queryset=user_profile.projects.all(), prefix='projects_formset')
 		skills_formset = Skills_form(queryset=user_profile.skills.all(), prefix='skills_formset')
 	else:
+		# if user has no profile then create formsets from scratch. 
 		projects_formset = Projects_form(prefix='projects_formset')
 		skills_formset = Skills_form(prefix='skills_formset')
 
@@ -75,14 +81,17 @@ def profile_edit(request):
 				print("*****************Got to right after the projects_formset")
 				if skills_formset.is_valid():
 					final_user_profile = user_profile_form.save(commit=False)
-					final_user_profile.user = request.user 
+					final_user_profile.user = request.user
+					# here we have our profile for our user, ready for the projects
+					# and skills manytomany fields to be added. 
 					final_user_profile.save()
 
 					for project in projects_formset:
 						if project.is_valid():
 							if project.cleaned_data:
-								#****I may need to add 'user', etc. 
-								project = project.save()
+								# I'm not creating a new project here, just 
+								# adding the the profile's projects manytomanyfield
+								project = project.save(commit=False)
 								final_user_profile.projects.add(project)
 
 					for skill in skills_formset:
@@ -91,18 +100,28 @@ def profile_edit(request):
 								#****I may need to add 'user', etc.
 								name = skill.cleaned_data['name'].lower()
 								if name == "":
+									# if the user erases one of the skills fields
+									# then don't delete the skill but delete the 
+									# instance in the profile's manytomanyfield. 
 									skill = skill.save(commit=False)
 									final_user_profile.skills.remove(skill)
 									print("*****************deleted the skill from the user profile.")
 								else:
 									print("*****************skill name {}.".format(name))
 									try:
+										# see if this skill already exists, so we don't have
+										# to create a new one. 
 										skill_replace = models.Skill.objects.get(name=name)
 										print("*****************skill did exist.")
 									except models.Skill.DoesNotExist:
+										# if skill does not exist, then create it in the Skill model. 
 										skill_replace = models.Skill.objects.create(name=name)
 										print("*****************skill did not exist.")
 									skill = skill.save(commit=False)
+									# I'll have to find a better way to do this, but I'm 
+									# just deleting the many to many instance and replacing it with
+									# the new one, even if its the same instance. This is in case
+									# they delete or erase an instance. 
 									final_user_profile.skills.remove(skill)
 									final_user_profile.skills.add(skill_replace)
 									print("*****************saved the skill.")
@@ -113,7 +132,7 @@ def profile_edit(request):
 
 	return render(
 		request, 'profile_edit.html', 
-		{'user_profile': user_profile, 'user_profile_form': user_profile_form, 'projects_formset': projects_formset, 'skills_formset': skills_formset, 'previous_jobs': previous_jobs })
+		{'user_profile_form': user_profile_form, 'projects_formset': projects_formset, 'skills_formset': skills_formset, 'previous_jobs': previous_jobs })
 					
 
 
