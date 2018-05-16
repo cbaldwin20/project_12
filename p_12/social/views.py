@@ -6,6 +6,7 @@ from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.urls import reverse_lazy
 from django.views import generic
 from django.shortcuts import render, get_object_or_404, redirect
+from django.utils.text import slugify
 
 from django.contrib.auth.decorators import login_required
 from django.forms.models import modelformset_factory
@@ -22,13 +23,60 @@ def search(request):
 	return render(request, 'search.html')
 
 def project_new(request):
-	return render(request, 'project_new.html')
+	project_form = forms.ProjectForm(prefix='project_form')
+	Positions_form = modelformset_factory(
+		models.Position,
+		form=forms.PositionForm,
+		)
+	positions_formset = Positions_form(prefix='positions_formset')
 
-def project_edit(request):
+	if request.method == "POST":
+		positions_formset = Positions_form(request.POST, prefix='positions_formset')
+		project_form = forms.ProjectForm(request.POST, prefix='project_form')
+		if positions_formset.is_valid():
+			if project_form.is_valid():
+				user_project = project_form.save(commit=False)
+				user_project.creator = request.user
+				user_project.active = True
+				user_project.url_slug = slugify(user_project.project_name)
+				user_project.save()
+
+				for position in positions_formset:
+					if position.cleaned_data:
+						the_position = position.save(commit=False)
+						the_position.project = user_project
+						the_position.save()
+
+						if the_position.position_name == "":
+							if the_position.position_description == "":
+								the_position.delete()
+
+				for position in positions_formset.deleted_forms:
+					if position.is_valid():
+						delete_position = position.save()
+						delete_position.delete()
+		return redirect('base:home')
+
+
+	return render(request, 'project_new.html', {'project_form': project_form, 'positions_formset': positions_formset })
+
+def project_edit(request, url_slug):
 	return render(request, 'project_edit.html')
 
-def project(request):
+def project(request, url_slug):
 	return render(request, 'project.html')
+
+def practice(request):
+	Skills_form = modelformset_factory(
+		models.Skill,
+		form=forms.SkillForm,
+		extra=0,
+		)
+	user_profile = models.Profile.objects.get(user=request.user)
+	skills_formset1 = Skills_form(queryset=user_profile.skills.all(), prefix='skills_formset1')
+
+	return render(request, 'practice.html', {'skills_formset1': skills_formset1})
+
 
 def profile_edit(request):
 	# 'previous_jobs' not used yet. 
@@ -45,12 +93,16 @@ def profile_edit(request):
 	Projects_form = modelformset_factory(
 		models.Project,
 		form=forms.ProfileMyProjectsForm,
+		extra=0,
+		can_delete=True,
 		
 		)
 	
 	Skills_form = modelformset_factory(
 		models.Skill,
 		form=forms.SkillForm,
+		extra=0,
+		can_delete=True,
 		)
 	# this is the main profile. Is not a formset. 
 	user_profile_form = forms.ProfileForm(instance=user_profile,prefix='user_profile')
@@ -82,6 +134,7 @@ def profile_edit(request):
 				if skills_formset.is_valid():
 					final_user_profile = user_profile_form.save(commit=False)
 					final_user_profile.user = request.user
+					final_user_profile.url_slug = slugify(final_user_profile.name)
 					# here we have our profile for our user, ready for the projects
 					# and skills manytomany fields to be added. 
 					final_user_profile.save()
@@ -126,7 +179,10 @@ def profile_edit(request):
 									final_user_profile.skills.add(skill_replace)
 									print("*****************saved the skill.")
 									
-									
+					for skill in skills_formset.deleted_forms:
+						if skill.is_valid():
+							skill_remove = skill.save(commit=False)
+							final_user_profile.skills.remove(skill_remove)	
 
 					return redirect('base:home')
 
@@ -146,32 +202,12 @@ def profile_edit(request):
 	
 
 
+def profile(request, url_slug):
+	profile = get_object_or_404(models.Profile, url_slug=url_slug)
+	positions = models.Position.objects.filter(position_filled_user=request.user)
+	return render(request, 'profile.html', {'profile': profile, 'positions': positions })
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-def profile(request):
-	pass
-
-def profile_new(request):
-	pass
 
 
 

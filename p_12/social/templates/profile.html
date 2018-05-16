@@ -22,11 +22,9 @@
     </div>
 
     <div class="grid-70">
-      <h1>Wendy McElroy</h1>
+      <h1>{{ profile.name }}</h1>
       <div class="circle--article--body">
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+        <p>{{ profile.description }}</p>
       </div>
 
       <h2>Past Projects</h2>
@@ -38,22 +36,16 @@
           </tr>
         </thead>
         <tbody>
+          {% for position in positions %}
           <tr class="clickable-row" data-href="project.html">
             <td>
-              <h3>Invoice Delivery Tool</h3>
+              <h3>{{ position.project.project_name }}</h3>
             </td>
             <td class="circle--cell--right">
-              <span class="secondary-label">Rails Developer</span>
+              <span class="secondary-label">{{ position.position_name }}</span>
             </td>
           </tr>
-          <tr class="clickable-row" data-href="project.html">
-            <td>
-              <h3>Twitter Client</h3>
-            </td>
-            <td class="circle--cell--right">
-              <span class="secondary-label">Designer</span>
-            </td>
-          </tr>
+          {% endfor %}
         </tbody>
       </table>
     </div>
@@ -69,21 +61,22 @@
       <div class="circle--secondary--module">
         <h4>My Skills</h4>
         <ul class="unloaded">
-          <li>Skill 1</li>
-          <li>Skill 2</li>
-          <li>Skill 3</li>
-          <li>Skill 4</li>
-          <li>Skill 5</li>
+          {% for skill in profile.skills.all %}
+            
+              <li>{{ skill.name }}</li>
+            
+          {% endfor %}
         </ul>
       </div>
 
       <div class="circle--secondary--module">
         <h4>My Projects</h4>
         <ul class="circle--link--list">
-          <li><a>Project 1</a></li>
-          <li><a>Project 2</a></li>
-          <li><a>Project 3</a></li>
-          <li><a>Project 4</a></li>
+          {% for project in profile.projects.all %}
+              
+                <li><a href="{% url 'base:project' project.url_slug %}">{{ project.project_name }}</a></li>
+              
+          {% endfor %}
         </ul>
       </div>
     </div>

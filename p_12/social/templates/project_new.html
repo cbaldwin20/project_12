@@ -1,12 +1,17 @@
 {% extends 'layout.html' %}
+{% load widget_tweaks %}
+
 
 {% block body %}
+
+<form method="POST">
+  {% csrf_token %}
 
   <div class="circle--actions--bar">
     <div class="bounds">
       <div class="grid-100">
-        <a class="button button-primary" href="project.html">Save Project</a>
-        <a class="button button-text" href="index.html">Discard</a>
+        <input type="submit" class="button button-primary" value="Save Project">
+        <a class="button button-text" href="{% url 'base:home' %}">Discard</a>
       </div>
     </div>
   </div>
@@ -14,21 +19,30 @@
   <div class="bounds circle--page circle--article">
     <div class="grid-70">
       <div class="circle--article--body">
-        <input type="text" class="circle--input--h1" placeholder="Project Title" />
-        <textarea placeholder="Project description..."></textarea>
+        
+        {{ project_form.non_field_errors }}
+      {{ project_form.errors }}
+        
+        {% render_field project_form.project_name class+="circle--input--h1" placeholder="Project Title" %}
+        
+        {% render_field project_form.description placeholder="Project description..." %}
       </div>
 
       <div class="circle--project--positions">
         <h2>Positions</h2>
 
-        <ul class="circle--group--list circle--clone--list">
+        <ul id="positions" class="circle--group--list circle--clone--list">
+          {% for position_form in positions_formset %}
+                    {{ position_form.non_field_errors }}
+                    {{ position_form.errors }}
           <li>
-            <input type="text" class="circle--input--h3" placeholder="Position Title" />
-            <textarea placeholder="Position description..."></textarea>
-            <a class="circle--clone--add">Add Position</a>
-            <a class="circle--clone--remove">Remove</a>
+            {% render_field position_form.position_name class+="circle--input--h3" placeholder="Position Title" %}
+            {% render_field position_form.position_description placeholder="Position description..." %}
+            
           </li>
+          {% endfor %}
         </ul>
+        {{ positions_formset.management_form }}
         <a class="button button-primary" href="project.html">Save Project</a>
 
       </div>
@@ -38,15 +52,30 @@
 
       <div class="circle--secondary--module">
         <h3>Project Timeline</h3>
-        <textarea placeholder="Time estimate" class="circle--textarea--input"></textarea>
+        {% render_field project_form.project_timeline class+="circle--textarea--input" placeholder="Time estimate" %}
       </div>
 
       <div class="circle--secondary--module">
         <h3>Applicant Requirements</h3>
-        <textarea></textarea>
+        {{ project_form.application_requirements }}
       </div>
 
     </div>
   </div>
+
+
+<script type="text/javascript">
+    $(function() {
+          $('#positions li').formset({
+              addText:'Add Position',
+              prefix: '{{ positions_formset.prefix }}',
+              formCssClass: 'dynamic-positions_formset'
+
+            });
+
+
+            })
+</script>
+
 
 {% endblock %}

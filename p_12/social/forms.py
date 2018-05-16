@@ -32,15 +32,26 @@ class ProjectForm(forms.ModelForm):
 	class Meta:
 		fields = (
 			"project_name", "description", "project_timeline", "application_requirements",
-			"skills", "url", "active")
+			"active")
 		model = models.Project
+
+
+class PositionForm(forms.ModelForm):
+	class Meta:
+		fields = (
+			"position_name", "position_description")
+		model = models.Position
+
+
+
+
 
 		
 class ProfileMyProjectsForm(forms.ModelForm):
 	class Meta:
 		fields = (
 			"project_name",
-			"url")
+			"url_slug")
 		model = models.Project
 
 	def clean(self, *args, **kwargs):

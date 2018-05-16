@@ -11,20 +11,17 @@ class Skill(models.Model):
     
 
 
+
+    
+
 class Project(models.Model):
     project_name = models.CharField(max_length=255,)
     creator = models.ForeignKey(User, on_delete=True, related_name='project_owner')
     description = models.TextField()
     project_timeline = models.TextField()
     application_requirements = models.TextField()
-    url = models.URLField(max_length=200)
+    url_slug = models.SlugField(unique=True)
     active = models.BooleanField(default=True)
-    skills = models.ManyToManyField(Skill, related_name='project_positions')
-    
-
-
-    
-
 
 
 class Profile(models.Model):
@@ -34,6 +31,7 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=True, related_name='profile_user')
     projects = models.ManyToManyField(Project, related_name='user_projects')
     skills = models.ManyToManyField(Skill, related_name='user_skills')
+    url_slug = models.SlugField(unique=True)
 
     def save(self, *args, **kwargs):
         # this is required when you override save functions
@@ -47,6 +45,13 @@ class Profile(models.Model):
             if i_width > 200:
                 image.thumbnail(max_size, Image.ANTIALIAS)
                 image.save(self.image.path)
+
+
+class Position(models.Model):
+    position_name = models.CharField(max_length=255)
+    position_description = models.TextField()
+    project = models.ForeignKey(Project, on_delete=True, related_name='project_positions')
+    position_filled_user = models.ForeignKey(User, on_delete=True, related_name='my_position_for_project')
 
 
 class SkillDescriptions(models.Model):

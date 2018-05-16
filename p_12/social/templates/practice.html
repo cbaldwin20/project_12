@@ -1,0 +1,40 @@
+{% extends 'layout.html' %}
+{% load widget_tweaks %}
+
+{% block body %}
+
+<form method="POST">
+	{% csrf_token %}
+
+
+        
+        <ul id='skills1' class="circle--clone--list">
+          
+            
+                
+                  {% for skillform in skills_formset1 %}
+                  
+                 <li>
+                      
+                    {{ skillform }}
+                    
+          		</li>
+
+                  {% endfor %}
+
+                  
+            
+        </ul>
+        {{ skills_formset.management_form }}
+
+</form>
+
+
+<script type="text/javascript">
+    $(function() {
+        $('#skills1 li').formset();
+    })
+</script>
+         
+{% endblock %}
+
