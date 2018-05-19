@@ -13,6 +13,8 @@ urlpatterns = [
     url(r'^project_new$', views.project_new, name='project_new'),
     url(r'^project_edit/(?P<url_slug>[-\w]+)/$', views.project_edit, name='project_edit'),
     url(r'^project/(?P<url_slug>[-\w]+)/$', views.project, name='project'),
+    url(r'^project/delete/(?P<url_slug>[-\w]+)/$', views.project_delete, name='project_delete'),
+
     url(r'^profile_edit$', views.profile_edit, name='profile_edit'),
     url(r'^profile/(?P<url_slug>[-\w]+)/$', views.profile, name='profile'),
     url(r'^applications$', views.applications, name='applications'),

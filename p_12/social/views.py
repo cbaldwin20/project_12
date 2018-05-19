@@ -55,16 +55,69 @@ def project_new(request):
 					if position.is_valid():
 						delete_position = position.save()
 						delete_position.delete()
-		return redirect('base:home')
-
-
+				return redirect('base:project', url_slug=user_project.url_slug )
 	return render(request, 'project_new.html', {'project_form': project_form, 'positions_formset': positions_formset })
 
 def project_edit(request, url_slug):
-	return render(request, 'project_edit.html')
+	try:
+		this_project = models.Project.objects.get(creator=request.user, url_slug=url_slug)
+	except models.Project.DoesNotExist:
+		return redirect('base:project_new')
+
+	project_form = forms.ProjectForm(instance=this_project, prefix='project_form')
+	Positions_form = modelformset_factory(
+		models.Position,
+		form=forms.PositionForm,
+		)
+	positions = models.Position.objects.filter(project=this_project)
+	positions_formset = Positions_form(queryset=positions, prefix='positions_formset')
+
+	if request.method == "POST":
+		positions_formset = Positions_form(request.POST, queryset=positions, prefix='positions_formset')
+		project_form = forms.ProjectForm(request.POST, instance=this_project, prefix='project_form')
+		if positions_formset.is_valid():
+			if project_form.is_valid():
+				user_project = project_form.save()
+
+				for position in positions_formset:
+					if position.cleaned_data:
+						the_position = position.save(commit=False)
+						the_position.project = user_project
+						the_position.save()
+
+						if the_position.position_name == "":
+							if the_position.position_description == "":
+								the_position.delete()
+
+				for position in positions_formset.deleted_forms:
+					if position.is_valid():
+						delete_position = position.save()
+						delete_position.delete()
+				return redirect('base:project', url_slug=user_project.url_slug )
+	print("*************************Got to right before the render.")
+	return render(request, 'project_edit.html', {'project_form': project_form, 'positions_formset': positions_formset })
+	
 
 def project(request, url_slug):
-	return render(request, 'project.html')
+	the_project = get_object_or_404(models.Project, url_slug=url_slug)
+	return render(request, 'project.html', {'the_project': the_project})
+
+def project_delete(request, url_slug):
+	try:
+		project_delete = models.Project.objects.get(creator=request.user, url_slug=url_slug)
+	except models.Project.DoesNotExist:
+		return redirect('base:home')
+
+	for position in project_delete.project_positions:
+		for application in position.position_applications:
+			application.delete()
+		position.delete()
+	project_delete.delete()
+
+	return redirect("base:home")
+
+
+
 
 def practice(request):
 	Skills_form = modelformset_factory(
@@ -80,10 +133,9 @@ def practice(request):
 
 def profile_edit(request):
 	# 'previous_jobs' not used yet. 
-	previous_jobs = models.Application.objects.filter(
-		person_applying=request.user,
-		accepted=True, 
-		project__active=False)
+	previous_jobs = models.Position.objects.filter(
+		position_filled_user=request.user
+		)
 	# see if this user already has a profile. 
 	try:
 		user_profile = models.Profile.objects.get(user=request.user)
@@ -180,11 +232,13 @@ def profile_edit(request):
 									print("*****************saved the skill.")
 									
 					for skill in skills_formset.deleted_forms:
+						print("*****************got past the .deleted_forms.")
 						if skill.is_valid():
-							skill_remove = skill.save(commit=False)
-							final_user_profile.skills.remove(skill_remove)	
+							skill_remove = skill.save()
+							final_user_profile.skills.remove(skill_remove)
+							print("*****************removed the skill.")
 
-					return redirect('base:home')
+					return redirect('base:profile', url_slug=final_user_profile.url_slug)
 
 	return render(
 		request, 'profile_edit.html', 
@@ -204,8 +258,9 @@ def profile_edit(request):
 
 def profile(request, url_slug):
 	profile = get_object_or_404(models.Profile, url_slug=url_slug)
+	my_projects = models.Project.objects.filter(creator=request.user)
 	positions = models.Position.objects.filter(position_filled_user=request.user)
-	return render(request, 'profile.html', {'profile': profile, 'positions': positions })
+	return render(request, 'profile.html', {'profile': profile, 'positions': positions, 'my_projects': my_projects })
 
 
 

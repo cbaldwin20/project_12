@@ -5,7 +5,7 @@
   <div class="circle--actions--bar">
     <div class="bounds">
       <div class="grid-100">
-        <a class="button" href="project_edit.html">Edit Project</a>
+        <a class="button" href="{% url 'base:project_edit' url_slug=the_project.url_slug %}">Edit Project</a>
         <a class="button button-text" href="index.html">Delete Project</a>
       </div>
     </div>
@@ -15,32 +15,31 @@
     <div class="grid-70">
       <div class="circle--article--header">
         <h4 class="circle--article--section">Project</h4>
-        <h1 class="circle--article--title">Currency Calculator</h1>
-        <p class="circle--article--byline">Project Owner: <a>Wendy McElroy</a></p>
+        <h1 class="circle--article--title">{{ the_project.project_name }}</h1>
+        <p class="circle--article--byline">Project Owner: 
+          <a href="{% url 'base:profile' url_slug=the_project.creator.profile_user.url_slug %}">{{ the_project.creator }}</a></p>
       </div>
 
       <div class="circle--article--body">
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+        <p>{{ the_project.description }}</p>
       </div>
 
       <div class="circle--project--positions">
         <h2>Positions</h2>
 
         <ul class="circle--group--list">
+          {% for position in the_project.project_positions.all %}
           <li>
-            <h3>iOS Developer</h3>
-            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-            <a class="button button-primary">Apply</a>
+            <h3>{{ position.position_name }}</h3>
+            <p>{{ position.position_description }}</p>
+            {% if position.position_filled_user %}
+              <a class="button button-primary button-inactive">Position Filled</a>
+            {% else %}
+              
+              <a class="button button-primary">Apply</a>
+            {% endif %}
           </li>
-          <li>
-            <h3>Designer</h3>
-            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-            <a class="button button-primary button-inactive">Position Filled</a>
-          </li>
+          {% endfor %}
         </ul>
       </div>
 
@@ -50,19 +49,22 @@
       <div class="circle--secondary--module">
         <h3>Project Needs</h3>
         <ul class="circle--link--list">
-          <li><a>iOS Developer</a></li>
-          <li><a>Designer</a></li>
+          {% for position in the_project.project_positions.all %}
+            {% if not position.position_filled_user %}
+              <li><a>{{ position.position_name }}</a></li>
+            {% endif %}
+          {% endfor %}
         </ul>
       </div>
 
       <div class="circle--secondary--module">
         <h3>Project Timeline</h3>
-        <p>10 hours</p>
+        <p>{{ the_project.project_timeline }}</p>
       </div>
 
       <div class="circle--secondary--module">
         <h3>Applicant Requirements</h3>
-        <p>Applicants are required to work from our headquarters located in Antarctica.</p>
+        <p>{{ the_project.application_requirements }}</p>
       </div>
 
     </div>

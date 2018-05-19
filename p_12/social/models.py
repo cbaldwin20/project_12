@@ -51,7 +51,8 @@ class Position(models.Model):
     position_name = models.CharField(max_length=255)
     position_description = models.TextField()
     project = models.ForeignKey(Project, on_delete=True, related_name='project_positions')
-    position_filled_user = models.ForeignKey(User, on_delete=True, related_name='my_position_for_project')
+    position_filled_user = models.ForeignKey(User, on_delete=True, related_name='my_position_for_project', blank=True,
+    null=True,)
 
 
 class SkillDescriptions(models.Model):
@@ -62,7 +63,6 @@ class SkillDescriptions(models.Model):
 
 
 class Application(models.Model):
-    project = models.ForeignKey(Project, on_delete=True, related_name='applications')
+    position = models.ForeignKey(Position, on_delete=True, related_name='position_applications')
     person_applying = models.ForeignKey(User, on_delete=True, related_name='applications')
-    skill = models.ForeignKey(Skill, on_delete=True, related_name='applications')
     accepted = models.BooleanField(default=False)

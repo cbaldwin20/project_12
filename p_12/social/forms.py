@@ -65,3 +65,7 @@ class ProfileMyProjectsForm(forms.ModelForm):
 				raise forms.ValidationError('This project with url: {}, project name: {}, does not exist.'.format(url, project_name))
 		return super().clean(*args, **kwargs)
 
+class ApplicationForm(forms.ModelForm):
+	class Meta:
+		fields = ('accepted',)
+		model = models.Application

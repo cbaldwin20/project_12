@@ -46,10 +46,10 @@
           {% for previous_job in previous_jobs %}
           <tr class="clickable-row" data-href="project.html">
             <td>
-              <h3>{{ previous_job.project.name }}</h3>
+              <h3>{{ previous_job.project.project_name }}</h3>
             </td>
             <td class="circle--cell--right">
-              <span class="secondary-label">{{ previous_job.skill }}</span>
+              <span class="secondary-label">{{ previous_job.position_name }}</span>
             </td>
           </tr>
           {% endfor %}
@@ -85,7 +85,7 @@
                     {{ skillform.errors }}
                   <li>
                     
-                    
+                    {% if skillform.instance.pk %}{{ skillform.DELETE }}{% endif %}
                     {% render_field skillform.name placeholder="Skill" %}
                     
 
