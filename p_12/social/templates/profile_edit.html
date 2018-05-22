@@ -6,8 +6,10 @@
   <div class="circle--actions--bar">
     <nav class="bounds">
       <ul class="circle--pill--list">
-        <li><a href="applications.html">Applications</a></li>
-        <li><a class="selected" href="profile.html">Profile</a></li>
+        {% if user_profile_form.instance.pk %}
+        <li><a href="{% url 'base:applications' %}">Applications</a></li>
+        <li><a class="selected" href="{% url 'base:profile' url_slug=user_profile_form.instance.url_slug %}">Profile</a></li>
+        {% endif %}
       </ul>
     </nav>
   </div>
@@ -61,7 +63,9 @@
 
       <div class="circle--secondary--module">
         <div class="circle--primary--avatar">
+          {% if user_profile_form.instance.pk %}
           <img src="{{ user_profile_form.instance.image.url }}" />
+          {% endif %}
           <a class="button">
             Upload Photo
             
