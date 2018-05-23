@@ -5,10 +5,10 @@
   <div class="bounds circle--page">
     <div class="circle--page--header circle--fluid">
       <div class="circle--fluid--cell circle--fluid--primary">
-        {% if need %}
-        <h2>Available projects that match {{ need }}</h2>
+        {% if need != "All Needs" %}
+        <h2>Available projects that match: '{{ need }}'</h2>
         {% else %}
-        <h2>Available projects that match my skills</h2>
+        <h2>Available projects that match your skills</h2>
         {% endif %}
       </div>
       <div class="circle--fluid--cell circle--fluid--secondary">
@@ -48,7 +48,7 @@
         </thead>
         <tbody>
           {% if not positions %}
-            <h3>You have no jobs matching your skills</h3>
+            <td><p>You have no matching jobs</p></td>
           {% else %}
           {% for position in positions %}
           <tr class="clickable-row" data-href="{% url 'base:project' url_slug=position.project.url_slug %}">

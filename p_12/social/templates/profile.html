@@ -36,16 +36,21 @@
           </tr>
         </thead>
         <tbody>
-          {% for position in positions %}
-          <tr class="clickable-row" data-href="project.html">
-            <td>
-              <h3>{{ position.project.project_name }}</h3>
-            </td>
-            <td class="circle--cell--right">
-              <span class="secondary-label">{{ position.position_name }}</span>
-            </td>
-          </tr>
-          {% endfor %}
+          {% if positions %}
+            {% for position in positions %}
+            <tr class="clickable-row" data-href="project.html">
+              <td>
+                <h3>{{ position.project.project_name }}</h3>
+              </td>
+              <td class="circle--cell--right">
+                <span class="secondary-label">{{ position.position_name }}</span>
+              </td>
+            </tr>
+            {% endfor %}
+            
+          {% else %}
+          <td><p>There are no past projects for you</p></td>
+          {% endif %}
         </tbody>
       </table>
     </div>

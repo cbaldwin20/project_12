@@ -24,7 +24,7 @@
         {% if status == applications %}
           <li><a href="{% url 'base:applications' applications=status project=project need=need %}" class="selected">{{ status }}</a></li>
         {% else %}
-          <li><a href="{% url 'base:applications' applications=status project=project need=need %}" class="selected">{{ status }}</a></li>
+          <li><a href="{% url 'base:applications' applications=status project=project need=need %}">{{ status }}</a></li>
         {% endif %}
       {% endfor %}
         </ul>
@@ -77,18 +77,22 @@
           </tr>
         </thead>
         <tbody>
-          {% for an_application in all_applications %}
-          <tr class="clickable-row" data-href="profile.html">
-            <td>
-              <h3><a href="{% url 'base:profile' url_slug=an_application.person_applying.user.url_slug %}">
-              {{ an_application.person_applying.username }}</a></h3>
-              <p><a href="{% url 'base:project' url_slug=an_application.position.project.url_slug %}">{{ an_application.position.project.project_name }}</a></p>
-            </td>
-            <td class="circle--cell--right">
-              <span class="secondary-label">{{ an_application.position.position_name }}</span>
-            </td>
-          </tr>
-          {% endfor %}
+          {% if all_applications %}
+            {% for an_application in all_applications %}
+            <tr class="clickable-row" data-href="profile.html">
+              <td>
+                <h3><a href="{% url 'base:profile' url_slug=an_application.person_applying.user.url_slug %}">
+                {{ an_application.person_applying.username }}</a></h3>
+                <p><a href="{% url 'base:project' url_slug=an_application.position.project.url_slug %}">{{ an_application.position.project.project_name }}</a></p>
+              </td>
+              <td class="circle--cell--right">
+                <span class="secondary-label">{{ an_application.position.position_name }}</span>
+              </td>
+            </tr>
+            {% endfor %}
+          {% else %}
+            <td><p>There are no applications</p></td>
+          {% endif %}
         </tbody>
       </table>
 

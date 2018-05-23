@@ -24,9 +24,9 @@
         <ul class="circle--filter--list">
           {% for the_need in all_needs %}
             {% if the_need == need %}
-              <li><a href="{% url 'base:search' need={{ the_need }} %}" class="selected">{{ the_need }}</a></li>
+              <li><a href="{% url 'base:search' need=the_need %}" class="selected">{{ the_need }}</a></li>
             {% else %}
-              <li><a href="{% url 'base:search' need={{ the_need }} %}">{{ the_need }}</a></li>
+              <li><a href="{% url 'base:search' need=the_need %}">{{ the_need }}</a></li>
             {% endif %}
           {% endfor %}
         </ul>
@@ -45,19 +45,24 @@
           </tr>
         </thead>
         <tbody>
-          {% for match in matches %}
-            {% project_need in match.project_positions.all %}
-              {% if project_need.position_filled_user is None %}
-          <tr class="clickable-row" data-href="project.html">
-            <td>
-              <h3>{{ match.project_name }}</h3>
-            </td>
-            <td class="circle--cell--right">
-              <span class="secondary-label">{{ project_need.position_name }}</span>
-            </td>
-          </tr>
-            {% endif %}
+          {% if not matches %}
+            <td><p>There are no matches</p></td>
+          {% else %}
+            {% for match in matches %}
+              {% for project_need in match.project_positions.all %}
+                {% if project_need.position_filled_user is None %}
+            <tr class="clickable-row" data-href="project.html">
+              <td>
+                <h3>{{ match.project_name }}</h3>
+              </td>
+              <td class="circle--cell--right">
+                <span class="secondary-label">{{ project_need.position_name }}</span>
+              </td>
+            </tr>
+              {% endif %}
+              {% endfor %}
           {% endfor %}
+          {% endif %}
         </tbody>
       </table>
  

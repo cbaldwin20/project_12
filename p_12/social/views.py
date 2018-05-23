@@ -11,6 +11,8 @@ from django.utils.text import slugify
 from django.contrib.auth.decorators import login_required
 from django.forms.models import modelformset_factory
 
+from django.db.models import Q
+
 from datetime import timedelta
 from django.utils import timezone
 
