@@ -19,8 +19,11 @@ urlpatterns = [
     url(r'^profile_new$', views.profile_new, name='profile_new'),
     url(r'^profile_edit$', views.profile_edit, name='profile_edit'),
     url(r'^profile/(?P<url_slug>[-\w]+)$', views.profile, name='profile'),
-    url(r'^applications$', views.applications, name='start_applications'),
-    url(r'^applications/(?P<applications>[-\w]+)/(?P<project>[-\w]+)/(?P<need>[-\w]+)$', views.applications, name='applications'),
+
+    url(r'^applications/$', views.applications, name='home_applications'),
+    url(r'^applications/(?P<applications>[-\w]+)/(?P<project>[-\w]+)/(?P<need>[-\w]+)/$', views.applications, name='applications'),
+    					
+    
     url(r'^search/(?P<need>[-\w]+)$', views.search, name='search'),
 
     url(r'^practice$', views.practice, name='practice'),

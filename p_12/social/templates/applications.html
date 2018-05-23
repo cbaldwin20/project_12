@@ -22,9 +22,9 @@
         <ul class="circle--filter--list">
       {% for status in statuses %}
         {% if status == applications %}
-          <li><a href="{% url 'base:applications' applications={{ status }} project=project need=need %}" class="selected">{{ status }}</a></li>
+          <li><a href="{% url 'base:applications' applications=status project=project need=need %}" class="selected">{{ status }}</a></li>
         {% else %}
-          <li><a href="{% url 'base:applications' applications={{ status }} project=project need=need %}" class="selected">{{ status }}</a></li>
+          <li><a href="{% url 'base:applications' applications=status project=project need=need %}" class="selected">{{ status }}</a></li>
         {% endif %}
       {% endfor %}
         </ul>
@@ -39,12 +39,13 @@
           <li><a href="{% url 'base:applications' applications=applications project='All Projects' need=need %}" class="selected">All Projects</a></li>
           {% else %}
             <li><a href="{% url 'base:applications' applications=applications project='All Projects' need=need %}">All Projects</a></li>
+          {% endif %}
 
           {% for the_project in all_projects %}
             {% if the_project.project_name == project %}
-          <li><a href="{% url 'base:applications' applications=applications project={{ the_project.project_name }} need=need %}" class="selected">{{ the_project.project_name }}</a></li>
+          <li><a href="{% url 'base:applications' applications=applications project=the_project.project_name need=need %}" class="selected">{{ the_project.project_name }}</a></li>
             {% else %}
-              <li><a href="{% url 'base:applications' applications=applications project={{ the_project.project_name }} need=need %}">{{ the_project.project_name }}</a></li>
+              <li><a href="{% url 'base:applications' applications=applications project=the_project.project_name need=need %}">{{ the_project.project_name }}</a></li>
             {% endif %}
           {% endfor %}
         </ul>
@@ -55,9 +56,9 @@
         <ul class="circle--filter--list">
           {% for the_need in all_needs %}
             {% if the_need == need %}
-              <li><a href="{% url 'base:applications' applications=applications project=project need={{ the_need }} %}" class="selected">{{ the_need }}</a></li>
+              <li><a href="{% url 'base:applications' applications=applications project=project need=the_need %}" class="selected">{{ the_need }}</a></li>
             {% else %}
-              <li><a href="{% url 'base:applications' applications=applications project=project need={{ the_need }} %}">{{ the_need }}</a></li>
+              <li><a href="{% url 'base:applications' applications=applications project=project need=the_need %}">{{ the_need }}</a></li>
             {% endif %}
           {% endfor %}
         </ul>
@@ -79,9 +80,9 @@
           {% for an_application in all_applications %}
           <tr class="clickable-row" data-href="profile.html">
             <td>
-              <h3><a href="{% url 'base:profile' url_slug={{ an_application.person_applying.user.url_slug }} %}">
+              <h3><a href="{% url 'base:profile' url_slug=an_application.person_applying.user.url_slug %}">
               {{ an_application.person_applying.username }}</a></h3>
-              <p><a href="{% url 'base:project' url_slug={{ an_application.position.project.url_slug }} %}">{{ an_application.position.project.project_name }}</a></p>
+              <p><a href="{% url 'base:project' url_slug=an_application.position.project.url_slug %}">{{ an_application.position.project.project_name }}</a></p>
             </td>
             <td class="circle--cell--right">
               <span class="secondary-label">{{ an_application.position.position_name }}</span>

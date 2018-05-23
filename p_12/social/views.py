@@ -413,7 +413,7 @@ def search(request, need="All Needs"):
 
 
 @login_required
-def applications(request, applications="New Applications", project="All Projects", need="All Needs"):
+def applications(request, applications="All Applications", project="All Projects", need="All Needs"):
     applications=applications
     project=project
     need=need
@@ -424,23 +424,25 @@ def applications(request, applications="New Applications", project="All Projects
     all_applications = models.Application.objects.filter(
         position__project__creator=request.user)
 
-    #************ filter the applications
-    if applications == "New Applications":
-        all_applications = all_applications.filter(
-            applied_date__gte=timezone.now().date() - timedelta(days=7))
-    elif applications == "Accepted":
-        all_applications = all_applications.filter(accepted=True)
-    elif applications == "Rejected":
-        all_applications = all_applications.filter(accepted=False)
+    if all_applications:
 
-    #************ filter project
-    if project != "All Projects":
-        all_applications = all_applications.filter(position__project__project_name=project)
+        #************ filter the applications
+        if applications == "New Applications":
+            all_applications = all_applications.filter(
+                applied_date__gte=timezone.now().date() - timedelta(days=7))
+        elif applications == "Accepted":
+            all_applications = all_applications.filter(accepted=True)
+        elif applications == "Rejected":
+            all_applications = all_applications.filter(accepted=False)
 
-    #************* filter need
-    if need != "All Needs":
-        all_applications = all_applications.filter(position__position_name__icontains=need,
-            position__position_description__icontains=need)
+        #************ filter project
+        if project != "All Projects":
+            all_applications = all_applications.filter(position__project__project_name=project)
+
+        #************* filter need
+        if need != "All Needs":
+            all_applications = all_applications.filter(position__position_name__icontains=need,
+                position__position_description__icontains=need)
 
     all_projects = models.Project.objects.filter(creator=request.user)
 
@@ -450,8 +452,8 @@ def applications(request, applications="New Applications", project="All Projects
 
     statuses = ["All Applications", "New Applications", "Accepted", "Rejected"]
 
-    return render(request, 'applications.html', 
-        {'applications': applications, "project": project, "need": need, 
+    return render(request, 'applications.html', {
+        'applications': applications, "project": project, "need": need, 
         "all_projects": all_projects, 'all_applications': all_applications,
         "all_needs": all_needs, "statuses": statuses, 'profile': profile })
 
