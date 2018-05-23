@@ -7,7 +7,7 @@
     <nav class="bounds">
       <ul class="circle--pill--list">
         {% if user_profile_form.instance.pk %}
-        <li><a href="{% url 'base:applications' %}">Applications</a></li>
+        <li><a href="{% url 'base:start_applications' %}">Applications</a></li>
         <li><a class="selected" href="{% url 'base:profile' url_slug=user_profile_form.instance.url_slug %}">Profile</a></li>
         {% endif %}
       </ul>
@@ -74,6 +74,7 @@
           </a>
         </div>
       </div>
+{% render_field user_profile_form.image type="file" name="user_profile-image" id="id_user_profile_image" %}
 
 
       <div class="circle--secondary--module">

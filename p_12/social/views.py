@@ -14,6 +14,9 @@ from django.forms.models import modelformset_factory
 from datetime import timedelta
 from django.utils import timezone
 
+import datetime
+import time
+
 import operator
 import functools
 
@@ -22,11 +25,24 @@ from . import forms
 
 
 @login_required
+def practice(request):
+    Skills_form = modelformset_factory(
+        models.Skill,
+        form=forms.SkillForm,
+        extra=1,
+        )
+    
+    skills_formset1 = Skills_form(queryset=models.Skill.objects.none(), prefix='skills_formset1')
+
+    return render(request, 'practice.html', {'skills_formset1': skills_formset1})
+
+
+@login_required
 def index(request, need="All Needs"):
     try:
         models.Profile.objects.get(user=request.user)
     except models.Profile.DoesNotExist:
-        return redirect('base:profile_edit')
+        return redirect('base:profile_new')
     needs_list = ["All Needs", "Android Developer", "Designer", "Java Developer", 
     "PHP Developer", "Python Developer", "Rails Developer", "WordPress Developer", 
     "iOS Developer"]
@@ -48,7 +64,7 @@ def index(request, need="All Needs"):
     positions = None
     return render(request, 'index.html', {'positions': positions})
 
-
+@login_required
 def project_new(request):
     project_form = forms.ProjectForm(prefix='project_form')
     Positions_form = modelformset_factory(
@@ -65,7 +81,9 @@ def project_new(request):
                 user_project = project_form.save(commit=False)
                 user_project.creator = request.user
                 user_project.active = True
-                user_project.url_slug = slugify(user_project.project_name)
+                now = datetime.datetime.now()
+                seconds = int(time.mktime(now.timetuple())) 
+                user_project.url_slug = "{}-{}".format(seconds, slugify(user_project.project_name))
                 user_project.save()
 
                 for position in positions_formset:
@@ -85,6 +103,7 @@ def project_new(request):
                 return redirect('base:project', url_slug=user_project.url_slug )
     return render(request, 'project_new.html', {'project_form': project_form, 'positions_formset': positions_formset })
 
+@login_required
 def project_edit(request, url_slug):
     try:
         this_project = models.Project.objects.get(creator=request.user, url_slug=url_slug)
@@ -129,6 +148,7 @@ def project(request, url_slug):
     the_project = get_object_or_404(models.Project, url_slug=url_slug)
     return render(request, 'project.html', {'the_project': the_project})
 
+@login_required
 def project_delete(request, url_slug):
     try:
         project_delete = models.Project.objects.get(creator=request.user, url_slug=url_slug)
@@ -146,70 +166,43 @@ def project_delete(request, url_slug):
 
 
 
-def practice(request):
-    Skills_form = modelformset_factory(
-        models.Skill,
-        form=forms.SkillForm,
-        extra=0,
-        )
-    user_profile = models.Profile.objects.get(user=request.user)
-    skills_formset1 = Skills_form(queryset=user_profile.skills.all(), prefix='skills_formset1')
 
-    return render(request, 'practice.html', {'skills_formset1': skills_formset1})
+@login_required
+def profile_new(request):
 
-
-def profile_edit(request):
-    # 'previous_jobs' not used yet. 
-    previous_jobs = models.Position.objects.filter(
-        position_filled_user=request.user
-        )
-    # see if this user already has a profile. 
     try:
-        user_profile = models.Profile.objects.get(user=request.user)
+        models.Profile.objects.get(user=request.user)
     except models.Profile.DoesNotExist:
-        user_profile = None
+        # making this an empty list for the sake of the template. I share the 
+        # template with def profile_edit
+        previous_jobs = []
+    else:
+        print("SO RIGHT HERE IT IS THROWING THIS ERROR**********")
+        return redirect('base:profile_edit')
+
     
+
     Projects_form = modelformset_factory(
         models.Project,
         form=forms.ProfileMyProjectsForm,
-        extra=0,
-        can_delete=True,
-        
+        extra=1,
         )
     
     Skills_form = modelformset_factory(
         models.Skill,
         form=forms.SkillForm,
-        extra=0,
-        can_delete=True,
+        extra=1,
         )
-    # this is the main profile. Is not a formset. 
-    
-    print("********************user_profile: {}".format(user_profile))
-    # if the user has a profile then get all the projects and skills of the user
-    # and put them into formsets. 
-    if user_profile:
-        user_profile_form = forms.ProfileForm(instance=user_profile,prefix='user_profile')
-        projects_formset = Projects_form(queryset=user_profile.projects.all(), prefix='projects_formset')
-        skills_formset = Skills_form(queryset=user_profile.skills.all(), prefix='skills_formset')
-        print("********************it did the 'if'")
-    else:
-        # if user has no profile then create formsets from scratch. 
-        user_profile_form = forms.ProfileForm(prefix='user_profile')
-        projects_formset = Projects_form(prefix='projects_formset')
-        skills_formset = Skills_form(prefix='skills_formset')
-        print("********************it did the 'else'")
+
+    user_profile_form = forms.ProfileForm(prefix='user_profile_new')
+    projects_formset = Projects_form(queryset=models.Project.objects.none(), prefix='projects_formset_new')
+    skills_formset = Skills_form(queryset=models.Skill.objects.none(), prefix='skills_formset_new')
 
     if request.method == "POST":
-        if user_profile:
-            user_profile_form = forms.ProfileForm(request.POST, request.FILES, instance=user_profile, prefix='user_profile')
-            projects_formset = Projects_form(request.POST, queryset=user_profile.projects.all(), prefix='projects_formset')
-            skills_formset = Skills_form(request.POST, queryset=user_profile.skills.all(), prefix='skills_formset')
-        else:
-            print("*****************It used the else.")
-            user_profile_form = forms.ProfileForm(request.POST, request.FILES, prefix='user_profile')
-            projects_formset = Projects_form(request.POST, prefix='projects_formset')
-            skills_formset = Skills_form(request.POST,  prefix='skills_formset')
+        user_profile_form = forms.ProfileForm(request.POST, request.FILES, prefix='user_profile_new')
+        projects_formset = Projects_form(request.POST, prefix='projects_formset_new')
+        skills_formset = Skills_form(request.POST,  prefix='skills_formset_new')
+
         if user_profile_form.is_valid():
             print("*****************Got to right before the projects_formset")
             if projects_formset.is_valid():
@@ -217,10 +210,105 @@ def profile_edit(request):
                 if skills_formset.is_valid():
                     final_user_profile = user_profile_form.save(commit=False)
                     final_user_profile.user = request.user
-                    final_user_profile.url_slug = slugify(final_user_profile.name)
+                    now = datetime.datetime.now()
+                    seconds = int(time.mktime(now.timetuple())) 
+                    final_user_profile.url_slug = "{}-{}".format(seconds, slugify(final_user_profile.name))
                     # here we have our profile for our user, ready for the projects
                     # and skills manytomany fields to be added. 
                     final_user_profile.save()
+
+                    for project in projects_formset:
+                        if project.is_valid():
+                            if project.cleaned_data:
+                                # I'm not creating a new project here, just 
+                                # adding the the profile's projects manytomanyfield
+                                project = project.save(commit=False)
+                                final_user_profile.projects.add(project)
+
+                    for skill in skills_formset:
+                        if skill.is_valid():
+                            if skill.cleaned_data:
+                                #****I may need to add 'user', etc.
+                                name = skill.cleaned_data['name'].lower()
+                                if name == "":
+                                    # if the user erases one of the skills fields
+                                    # then don't delete the skill but delete the 
+                                    # instance in the profile's manytomanyfield. 
+                                    pass
+                                else:
+                                    print("*****************skill name {}.".format(name))
+                                    try:
+                                        # see if this skill already exists, so we don't have
+                                        # to create a new one. 
+                                        skill_replace = models.Skill.objects.get(name=name)
+                                        print("*****************skill did exist.")
+                                    except models.Skill.DoesNotExist:
+                                        # if skill does not exist, then create it in the Skill model. 
+                                        skill_replace = models.Skill.objects.create(name=name)
+                                        print("*****************skill did not exist.")
+                                    
+                                    # I'll have to find a better way to do this, but I'm 
+                                    # just deleting the many to many instance and replacing it with
+                                    # the new one, even if its the same instance. This is in case
+                                    # they delete or erase an instance. 
+                                    
+                                    final_user_profile.skills.add(skill_replace)
+                                    print("*****************saved the skill.")
+                                    
+                    return redirect('base:profile', url_slug=final_user_profile.url_slug)
+
+    return render(request, 'profile_edit.html', {'user_profile_form': user_profile_form, 'projects_formset': projects_formset, 'skills_formset': skills_formset, 'previous_jobs': previous_jobs })
+
+@login_required
+def profile_edit(request):
+    # see if this user already has a profile. 
+    try:
+        user_profile = models.Profile.objects.get(user=request.user)
+    except models.Profile.DoesNotExist:
+        return redirect('base:profile_new')
+
+    # 'previous_jobs' not used yet. 
+    previous_jobs = models.Position.objects.filter(
+        position_filled_user=request.user
+        )
+    
+    
+    Projects_form = modelformset_factory(
+        models.Project,
+        form=forms.ProfileMyProjectsForm,
+        extra=1,
+        can_delete=True,
+        
+        )
+    
+    Skills_form = modelformset_factory(
+        models.Skill,
+        form=forms.SkillForm,
+        extra=1,
+        can_delete=True,
+        )
+    # this is the main profile. Is not a formset. 
+    
+   
+    # if the user has a profile then get all the projects and skills of the user
+    # and put them into formsets. 
+    
+    user_profile_form = forms.ProfileForm(instance=user_profile,prefix='user_profile')
+    projects_formset = Projects_form(queryset=user_profile.projects.all(), prefix='projects_formset')
+    skills_formset = Skills_form(queryset=user_profile.skills.all(), prefix='skills_formset')
+        
+    
+
+    if request.method == "POST":
+        user_profile_form = forms.ProfileForm(request.POST, request.FILES, instance=user_profile, prefix='user_profile')
+        projects_formset = Projects_form(request.POST, queryset=user_profile.projects.all(), prefix='projects_formset')
+        skills_formset = Skills_form(request.POST, queryset=user_profile.skills.all(), prefix='skills_formset')
+        if user_profile_form.is_valid():
+            print("*****************Got to right before the projects_formset")
+            if projects_formset.is_valid():
+                print("*****************Got to right after the projects_formset")
+                if skills_formset.is_valid():
+                    final_user_profile = user_profile_form.save()
 
                     for project in projects_formset:
                         if project.is_valid():
@@ -291,9 +379,6 @@ def profile(request, url_slug=None):
     # if there is no url_slug provided then just go to 
     # either my profile, and if I don't have a profile then go to 
     # create my profile. 
-    
-
-
     profile = get_object_or_404(models.Profile, url_slug=url_slug)
     my_projects = models.Project.objects.filter(creator=request.user)
     positions = models.Position.objects.filter(position_filled_user=request.user)
@@ -327,7 +412,7 @@ def search(request, need="All Needs"):
 
 
 
-
+@login_required
 def applications(request, applications="New Applications", project="All Projects", need="All Needs"):
     applications=applications
     project=project
