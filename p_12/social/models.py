@@ -66,4 +66,5 @@ class Application(models.Model):
     position = models.ForeignKey(Position, on_delete=True, related_name='position_applications')
     person_applying = models.ForeignKey(User, on_delete=True, related_name='applications')
     accepted = models.BooleanField(default=False)
+    rejected = models.BooleanField(default=False)
     applied_date = models.DateField(auto_now_add=True)

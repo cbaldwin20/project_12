@@ -42,12 +42,13 @@ def practice(request):
 @login_required
 def index(request, need="All Needs"):
     try:
-        models.Profile.objects.get(user=request.user)
+        my_profile = models.Profile.objects.get(user=request.user)
     except models.Profile.DoesNotExist:
         return redirect('base:profile_new')
-    needs_list = ["All Needs", "Android Developer", "Designer", "Java Developer", 
-    "PHP Developer", "Python Developer", "Rails Developer", "WordPress Developer", 
-    "iOS Developer"]
+    needs_list = ["All Needs"]
+    my_skills = my_profile.skills.all()
+    for skill in my_skills:
+        needs_list.append(skill.name) 
     if need != "All Needs":
         positions = models.Position.objects.filter(position_name__icontains=need,
             position_description__icontains=need, position_filled_user__isnull=True)
@@ -73,7 +74,7 @@ def project_new(request):
         models.Position,
         form=forms.PositionForm,
         )
-    positions_formset = Positions_form(prefix='positions_formset')
+    positions_formset = Positions_form(queryset=models.Position.objects.none(), prefix='positions_formset')
 
     if request.method == "POST":
         positions_formset = Positions_form(request.POST, prefix='positions_formset')
@@ -135,18 +136,39 @@ def project_edit(request, url_slug):
 
                         if the_position.position_name == "":
                             if the_position.position_description == "":
+                                applications = models.Application.objects.filter(
+                                    position=the_position)
+                                if applications:
+                                    for application in applications:
+                                        application.delete()
                                 the_position.delete()
 
                 for position in positions_formset.deleted_forms:
                     if position.is_valid():
                         delete_position = position.save()
+                        applications = models.Application.objects.filter(
+                                    position=delete_position)
+                        if applications:
+                            for application in applications:
+                                application.delete()
                         delete_position.delete()
                 return redirect('base:project', url_slug=user_project.url_slug )
     print("*************************Got to right before the render.")
     return render(request, 'project_edit.html', {'project_form': project_form, 'positions_formset': positions_formset })
     
 
-def project(request, url_slug):
+def project(request, url_slug, position_pk=None, action=None):
+    if position_pk:
+        the_position = models.Position.objects.get(id=position_pk)
+        if action == "apply":
+            models.Application.objects.create(
+                position=the_position,
+                person_applying=request.user,
+                )
+        if action == "unapply":
+            app_to_delete = models.Application.objects.get(position=the_position)
+            app_to_delete.delete()
+
     the_project = get_object_or_404(models.Project, url_slug=url_slug)
     return render(request, 'project.html', {'the_project': the_project})
 
@@ -166,6 +188,14 @@ def project_delete(request, url_slug):
     return redirect("base:home")
 
 
+@login_required
+def my_profile(request):
+    try:
+        my_profile = models.Profile.objects.get(user=request.user)
+    except models.Profile.DoesNotExist:
+        return redirect('base:profile_new')
+
+    return redirect('base:profile', url_slug=my_profile.url_slug)
 
 
 
@@ -415,13 +445,31 @@ def search(request, need="All Needs"):
 
 
 @login_required
-def applications(request, applications="All Applications", project="All Projects", need="All Needs"):
+def applications(request, applications="All Applications", project="All Projects", need="All Needs", action=False, app_pk=False):
     applications=applications
     project=project
     need=need
     # for the slug_url anchor to my profile. 
     profile = models.Profile.objects.get(user=request.user)
 
+    if action:
+        if app_pk:
+            app_to_accept = models.Application.objects.get(id=app_pk)
+            if action == "accepted":
+                app_to_accept.accepted = True
+                app_to_accept.rejected = False
+                app_to_accept.position.position_filled_user = app_to_accept.person_applying
+                app_to_accept.save()
+            elif action == "rejected":
+                app_to_accept.rejected = True
+                app_to_accept.accepted = False
+                app_to_accept.save()
+            elif action == "undo":
+                app_to_accept.rejected = False
+                if app_to_accept.accepted == True:
+                    app_to_accept.position.position_filled_user = None
+                    app_to_accept.accepted = False
+                    app_to_accept.save()
 
     all_applications = models.Application.objects.filter(
         position__project__creator=request.user)
@@ -429,13 +477,19 @@ def applications(request, applications="All Applications", project="All Projects
     if all_applications:
 
         #************ filter the applications
+        if applications == "All Applications":
+            # getting only the applications that haven't been rejected or accepted
+            all_applications = all_applications.filter(accepted=False, rejected=False)
         if applications == "New Applications":
+            # getting only the applications that haven't been rejected or accepted
             all_applications = all_applications.filter(
+                accepted=False,
+                rejected=False,
                 applied_date__gte=timezone.now().date() - timedelta(days=7))
         elif applications == "Accepted":
             all_applications = all_applications.filter(accepted=True)
         elif applications == "Rejected":
-            all_applications = all_applications.filter(accepted=False)
+            all_applications = all_applications.filter(rejected=True)
 
         #************ filter project
         if project != "All Projects":
@@ -448,9 +502,11 @@ def applications(request, applications="All Applications", project="All Projects
 
     all_projects = models.Project.objects.filter(creator=request.user)
 
-    all_needs = ["All Needs", "Android Developer", "Designer", 
-    "Java Developer", "PHP Developer", "Python Developer", "Rails Developer", 
-    "WordPress Developer", "iOS Developer"]
+    all_needs = ["All Needs"]
+    more_needs = models.Position.objects.filter(project__creator=request.user)
+    if more_needs:
+        for my_need in more_needs:
+            all_needs.append(my_need.position_name)
 
     statuses = ["All Applications", "New Applications", "Accepted", "Rejected"]
 
