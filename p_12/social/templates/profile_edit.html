@@ -7,7 +7,7 @@
     <nav class="bounds">
       <ul class="circle--pill--list">
         {% if user_profile_form.instance.pk %}
-        <li><a href="{% url 'base:applications' %}">Applications</a></li>
+        <li><a href="{% url 'base:home_applications' %}">Applications</a></li>
         <li><a class="selected" href="{% url 'base:profile' url_slug=user_profile_form.instance.url_slug %}">Profile</a></li>
         {% endif %}
       </ul>
@@ -64,17 +64,22 @@
       <div class="circle--secondary--module">
         <div class="circle--primary--avatar">
           {% if user_profile_form.instance.pk %}
-          <img src="{{ user_profile_form.instance.image.url }}" />
+          <img style='height: 100%; width: 100%; object-fit: contain' src="{{ user_profile_form.instance.image.url }}" id="img_id"/>
+          {% else %}
+            <img style='height: 100%; width: 100%; object-fit: contain' id="img_id" src="#" alt="your image" />
           {% endif %}
           <a class="button">
             Upload Photo
             
-            <input type="file" name="user_profile-image" id="id_user_profile_image">
+            <input type="file" name="user_profile-image" id="id_user_profile_image" onchange="upload_img(this);">
+            
+            
             
           </a>
+          
         </div>
       </div>
-{% render_field user_profile_form.image type="file" name="user_profile-image" id="id_user_profile_image" %}
+
 
 
       <div class="circle--secondary--module">
@@ -154,6 +159,18 @@
             });
 
             })
+
+    function upload_img(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    $('#img_id').attr('src', e.target.result);
+                }
+
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
 </script>
 
 {% endblock %}

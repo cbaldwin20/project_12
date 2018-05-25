@@ -40,7 +40,7 @@ class Profile(models.Model):
         if self.image:
             image = Image.open(self.image)
             i_width, i_height = image.size
-            max_size = (200, 200)
+            max_size = (300, 400)
 
             if i_width > 200:
                 image.thumbnail(max_size, Image.ANTIALIAS)
