@@ -45,10 +45,13 @@ def index(request, need="All Needs"):
         my_profile = models.Profile.objects.get(user=request.user)
     except models.Profile.DoesNotExist:
         return redirect('base:profile_new')
-    needs_list = ["All Needs"]
+    needs_list = set()
+    
     my_skills = my_profile.skills.all()
     for skill in my_skills:
-        needs_list.append(skill.name) 
+        needs_list.add(skill.name)
+    needs_list.add("All Needs")
+    
     if need != "All Needs":
         positions = models.Position.objects.filter(position_name__icontains=need,
             position_description__icontains=need, position_filled_user__isnull=True)
@@ -92,6 +95,7 @@ def project_new(request):
                 for position in positions_formset:
                     if position.cleaned_data:
                         the_position = position.save(commit=False)
+                        the_position.position_name = the_position.position_name.lower()
                         the_position.project = user_project
                         the_position.save()
 
@@ -131,6 +135,7 @@ def project_edit(request, url_slug):
                 for position in positions_formset:
                     if position.cleaned_data:
                         the_position = position.save(commit=False)
+                        the_position.position_name = the_position.position_name.lower()
                         the_position.project = user_project
                         the_position.save()
 
@@ -165,9 +170,18 @@ def project(request, url_slug, position_pk=None, action=None):
                 position=the_position,
                 person_applying=request.user,
                 )
-        if action == "unapply":
+        elif action == "unapply":
             app_to_delete = models.Application.objects.get(position=the_position)
             app_to_delete.delete()
+
+        elif action == "undo":
+            app_to_change = models.Application.objects.get(position=the_position)
+            app_to_change.accepted = False
+            app_to_change.rejected = False
+            app_to_change.save()
+
+            the_position.position_filled_user = None
+            the_position.save()
 
     the_project = get_object_or_404(models.Project, url_slug=url_slug)
     return render(request, 'project.html', {'the_project': the_project})
@@ -502,12 +516,13 @@ def applications(request, applications="All Applications", project="All Projects
 
     all_projects = models.Project.objects.filter(creator=request.user)
 
-    all_needs = ["All Needs"]
+    all_needs = set()
+    
     more_needs = models.Position.objects.filter(project__creator=request.user)
     if more_needs:
         for my_need in more_needs:
-            all_needs.append(my_need.position_name)
-
+            all_needs.add(my_need.position_name)
+    all_needs.add("All Needs")
     statuses = ["All Applications", "New Applications", "Accepted", "Rejected"]
 
     return render(request, 'applications.html', {
