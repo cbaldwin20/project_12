@@ -68,3 +68,10 @@ class Application(models.Model):
     accepted = models.BooleanField(default=False)
     rejected = models.BooleanField(default=False)
     applied_date = models.DateField(auto_now_add=True)
+
+
+class Notification(models.Model):
+    description = models.CharField(max_length=255)
+    person_notifying = models.ForeignKey(User, on_delete=True, related_name="notifications")
+    time_of_notification = models.DateField(auto_now_add=True)
+    already_seen = models.BooleanField(default=False)

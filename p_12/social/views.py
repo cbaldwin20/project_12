@@ -19,6 +19,8 @@ from django.utils import timezone
 import datetime
 import time
 
+from django.contrib import messages
+
 import operator
 import functools
 
@@ -107,6 +109,7 @@ def project_new(request):
                     if position.is_valid():
                         delete_position = position.save()
                         delete_position.delete()
+                messages.success(request, 'Project created!')
                 return redirect('base:project', url_slug=user_project.url_slug )
     return render(request, 'project_new.html', {'project_form': project_form, 'positions_formset': positions_formset })
 
@@ -157,6 +160,7 @@ def project_edit(request, url_slug):
                             for application in applications:
                                 application.delete()
                         delete_position.delete()
+                messages.success(request, 'Project updated!')
                 return redirect('base:project', url_slug=user_project.url_slug )
     print("*************************Got to right before the render.")
     return render(request, 'project_edit.html', {'project_form': project_form, 'positions_formset': positions_formset })
@@ -170,9 +174,11 @@ def project(request, url_slug, position_pk=None, action=None):
                 position=the_position,
                 person_applying=request.user,
                 )
+            messages.success(request, 'You applied for {}'.format(the_position.position_name))
         elif action == "unapply":
             app_to_delete = models.Application.objects.get(position=the_position)
             app_to_delete.delete()
+            messages.success(request, 'You unapplied for {}'.format(the_position.position_name))
 
         elif action == "undo":
             app_to_change = models.Application.objects.get(position=the_position)
@@ -182,6 +188,14 @@ def project(request, url_slug, position_pk=None, action=None):
 
             the_position.position_filled_user = None
             the_position.save()
+
+            models.Notification.objects.create(
+                    person_notifying = app_to_change.person_applying,
+                    description = "Your application '{}' for project '{}' has been changed to undecided.".format(
+                        app_to_change.position.position_name, app_to_change.position.project.project_name),
+                    )
+
+            messages.success(request, "You made {}'s application for {} into 'undecided'".format(app_to_change.person_applying.username, the_position.position_name))
 
     the_project = get_object_or_404(models.Project, url_slug=url_slug)
     return render(request, 'project.html', {'the_project': the_project})
@@ -197,6 +211,7 @@ def project_delete(request, url_slug):
         for application in position.position_applications:
             application.delete()
         position.delete()
+    messages.success(request, 'You deleted project: {}'.format(project_delete.project_name))
     project_delete.delete()
 
     return redirect("base:home")
@@ -301,6 +316,7 @@ def profile_new(request):
                                     final_user_profile.skills.add(skill_replace)
                                     print("*****************saved the skill.")
                                     
+                    messages.success(request, 'You created your profile!')
                     return redirect('base:profile', url_slug=final_user_profile.url_slug)
 
     return render(request, 'profile_edit.html', {'user_profile_form': user_profile_form, 'projects_formset': projects_formset, 'skills_formset': skills_formset, 'previous_jobs': previous_jobs })
@@ -403,6 +419,7 @@ def profile_edit(request):
                             final_user_profile.skills.remove(skill_remove)
                             print("*****************removed the skill.")
 
+                    messages.success(request, 'Your profile is updated!')
                     return redirect('base:profile', url_slug=final_user_profile.url_slug)
 
     return render(
@@ -474,16 +491,39 @@ def applications(request, applications="All Applications", project="All Projects
                 app_to_accept.rejected = False
                 app_to_accept.position.position_filled_user = app_to_accept.person_applying
                 app_to_accept.save()
+
+                models.Notification.objects.create(
+                    person_notifying = app_to_accept.person_applying,
+                    description = "Your application '{}' for project '{}' has been approved. You got the job!".format(
+                        app_to_accept.position.position_name, app_to_accept.position.project.project_name),
+                    )
+                messages.success(request, "{} application for {} accepted.".format(app_to_accept.person_applying.username, app_to_accept.position.position_name))
+
             elif action == "rejected":
                 app_to_accept.rejected = True
                 app_to_accept.accepted = False
                 app_to_accept.save()
+
+                models.Notification.objects.create(
+                    person_notifying = app_to_accept.person_applying,
+                    description = "Your application '{}' for project '{}' has been denied".format(
+                        app_to_accept.position.position_name, app_to_accept.position.project.project_name),
+                    )
+                messages.success(request, "{} application for {} rejected.".format(app_to_accept.person_applying.username, app_to_accept.position.position_name))
+
             elif action == "undo":
                 app_to_accept.rejected = False
                 if app_to_accept.accepted == True:
                     app_to_accept.position.position_filled_user = None
                     app_to_accept.accepted = False
                     app_to_accept.save()
+
+                models.Notification.objects.create(
+                    person_notifying = app_to_accept.person_applying,
+                    description = "Your application '{}' for project '{}' has been changed to undecided.".format(
+                        app_to_accept.position.position_name, app_to_accept.position.project.project_name),
+                    )
+                messages.success(request, "{} application for {} changed to undecided.".format(app_to_accept.person_applying.username, app_to_accept.position.position_name))
 
     all_applications = models.Application.objects.filter(
         position__project__creator=request.user)
@@ -543,6 +583,12 @@ def applications(request, applications="All Applications", project="All Projects
 #     def form_valid(self, form):
 #         login(self.request, form.get_user())
 #         return super().form_valid(form)
+
+@login_required
+def notifications(request):
+    my_notifications = models.Notification.objects.all()
+    return render(request, 'notifications.html', {'my_notifications': my_notifications})
+
 
 
 class LogoutView(generic.RedirectView):

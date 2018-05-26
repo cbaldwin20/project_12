@@ -22,6 +22,8 @@ urlpatterns = [
     url(r'^profile_edit$', views.profile_edit, name='profile_edit'),
     url(r'^profile/(?P<url_slug>[-\w]+)$', views.profile, name='profile'),
 
+    url(r'^notifications/$', views.notifications, name='notifications'),
+
     url(r'^applications/$', views.applications, name='home_applications'),
     url(r'^applications/(?P<applications>[-\w ]+)/(?P<project>[-\w ]+)/(?P<need>[-\w ]+)/$', views.applications, name='applications'),
     url(r'^applications/(?P<applications>[-\w ]+)/(?P<project>[-\w ]+)/(?P<need>[-\w ]+)/(?P<action>[-\w ]+)/(?P<app_pk>[-\d ]+)/$', views.applications, name='action_applications'),

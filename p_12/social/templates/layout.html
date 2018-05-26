@@ -1,4 +1,5 @@
 {% load staticfiles %}
+{% load notifications %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -40,8 +41,14 @@
 
 
         <div class="circle--fluid--cell">
+        {% is_notify %}
+      </div>
+
+        <div class="circle--fluid--cell">
         <h1><a style="text-decoration:none" href="{% url 'base:my_profile' %}">P</a></h1>
       </div>
+
+        
 
 
 
@@ -80,6 +87,15 @@
       </div>
     </div>
   </header>
+
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+  
   {% block body %}
 
   {% endblock %}

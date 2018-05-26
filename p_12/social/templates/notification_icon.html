@@ -1,0 +1,5 @@
+{% if to_notify %}
+	<a style="color:red; text-decoration:none;" href="{% url 'base:notifications' %}">&#x25CB;</a>
+{% else %}
+	<a style="text-decoration:none;" href="{% url 'base:notifications' %}">&#x25CB;</a>
+{% endif %}
