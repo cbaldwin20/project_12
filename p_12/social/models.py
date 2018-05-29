@@ -27,7 +27,7 @@ class Project(models.Model):
 class Profile(models.Model):
     name = models.CharField(max_length=255,unique=True)
     description = models.TextField()
-    image = models.ImageField(upload_to=settings.MEDIA_ROOT, default="")
+    image = models.ImageField(upload_to=settings.MEDIA_ROOT, blank=True, default="")
     user = models.OneToOneField(User, on_delete=True, related_name='profile_user')
     projects = models.ManyToManyField(Project, related_name='user_projects')
     skills = models.ManyToManyField(Skill, related_name='user_skills')

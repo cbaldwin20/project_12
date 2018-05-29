@@ -86,16 +86,17 @@
         </div>
       </div>
     </div>
-  </header>
-
-{% if messages %}
-<ul class="messages">
+    {% if messages %}
+<ul style="list-style-type: none;" class="messages">
     {% for message in messages %}
-    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    <li style="background: #10F491; text-align:center; padding: 10px; width:100%;" {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
     {% endfor %}
 </ul>
 {% endif %}
-  
+  </header>
+
+
+
   {% block body %}
 
   {% endblock %}

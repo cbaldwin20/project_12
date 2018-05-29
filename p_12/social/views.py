@@ -52,14 +52,15 @@ def index(request, need="All Needs"):
     my_skills = my_profile.skills.all()
     for skill in my_skills:
         needs_list.add(skill.name)
-    needs_list.add("All Needs")
+    needs_list = list(needs_list)
+    needs_list.insert(0,"All Needs")
     
     if need != "All Needs":
         positions = models.Position.objects.filter(position_name__icontains=need,
             position_description__icontains=need, position_filled_user__isnull=True)
         return render(request, 'index.html', {'positions':positions, 'need':need, 'needs_list':needs_list})
     
-    my_skills = models.Skill.objects.filter(user_skills__user=request.user)
+    
     if my_skills:
         my_skills_name_list = []
         for skill in my_skills:
