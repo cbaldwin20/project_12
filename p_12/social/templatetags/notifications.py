@@ -23,3 +23,17 @@ def is_notify():
 def notify_clear():
 	notifications = models.Notification.objects.filter(already_seen=False)
 	notifications.update(already_seen=True)
+
+@register.simple_tag
+def did_apply(applications, user):
+	is_user_in = []
+	for application in applications:
+		is_user_in.append(application.person_applying)
+	if user in is_user_in:
+		return True
+	else:
+		return False
+
+
+
+

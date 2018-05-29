@@ -1,7 +1,9 @@
 {% extends 'layout.html' %}
+{% load notifications %}
 
 {% block body %}
 
+{% if the_project.creator == user %}
   <div class="circle--actions--bar">
     <div class="bounds">
       <div class="grid-100">
@@ -10,6 +12,7 @@
       </div>
     </div>
   </div>
+{% endif %}
 
   <div class="bounds circle--page circle--article">
     <div class="grid-70">
@@ -42,22 +45,23 @@
 
 
             {% if position.position_filled_user %}
-              {% if the_project.creator != user %}
-                <a class="button button-primary button-inactive">Position Filled</a>
-              {% else %}
-                <a href="{% url 'base:project_position' url_slug=the_project.url_slug position_pk=position.id action='undo' %}" class="button button-primary">Position Filled/undo</a>
-              {% endif %}
+                  {% if the_project.creator != user %}
+                      <a class="button button-primary button-inactive">Position Filled</a>
+                  {% else %}
+                      <a href="{% url 'base:project_position' url_slug=the_project.url_slug position_pk=position.id action='undo' %}" class="button button-primary">Position Filled/undo</a>
+                  {% endif %}
               
             {% else %}
-              {% if the_project.creator != user %}
-                {% if user in position.position_applications.person_applying %}
-                  <a href="{% url 'base:project_position' url_slug=the_project.url_slug position_pk=position.id action='unapply' %}" class="button button-primary">You applied/unapply</a>
-                {% else %}
-                  <a href="{% url 'base:project_position' url_slug=the_project.url_slug position_pk=position.id action='apply' %}" class="button button-primary">Apply</a>
-                {% endif %}
-              {% else %}
-              <a class="button button-primary button-inactive">Position Not Filled</a>
-              {% endif %}
+                  {% if the_project.creator != user %}
+                      {% did_apply applications=position.position_applications.all user=user as did_i_apply %}
+                      {% if did_i_apply %}
+                            <a href="{% url 'base:project_position' url_slug=the_project.url_slug position_pk=position.id action='unapply' %}" class="button button-primary">You applied/unapply</a>
+                      {% else %}
+                            <a href="{% url 'base:project_position' url_slug=the_project.url_slug position_pk=position.id action='apply' %}" class="button button-primary">Apply</a>
+                      {% endif %}
+                  {% else %}
+                      <a class="button button-primary button-inactive">Position Not Filled</a>
+                  {% endif %}
             {% endif %}
           </li>
           {% endfor %}
