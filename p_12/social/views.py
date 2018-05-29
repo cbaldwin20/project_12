@@ -49,28 +49,31 @@ def index(request, need="All Needs"):
         return redirect('base:profile_new')
     needs_list = set()
     
+    needs_list = ["All Needs"]
     my_skills = my_profile.skills.all()
     for skill in my_skills:
-        needs_list.add(skill.name)
-    needs_list = list(needs_list)
-    needs_list.insert(0,"All Needs")
+        needs_list.append(skill.name)
+    
     
     if need != "All Needs":
-        positions = models.Position.objects.filter(position_name__icontains=need,
-            position_description__icontains=need, position_filled_user__isnull=True)
+        positions = models.Position.objects.filter(
+            Q(position_name__icontains=need)|
+            Q(position_description__icontains=need),
+             position_filled_user__isnull=True)
         return render(request, 'index.html', {'positions':positions, 'need':need, 'needs_list':needs_list})
-    
-    
-    if my_skills:
+
+
+    elif my_skills:
         my_skills_name_list = []
         for skill in my_skills:
-            my_skills_name_list += skill.name
-        query = functools.reduce(operator.and_, (
+            my_skills_name_list.append(skill.name)
+        query = functools.reduce(operator.or_, (
             Q(position_name__icontains=the_skill)|Q(position_description__icontains=the_skill) for the_skill in my_skills_name_list))
         positions = models.Position.objects.filter(query, position_filled_user__isnull=True)
         return render(request, 'index.html', {'positions':positions, 'need':need, 'needs_list':needs_list})
 
-    positions = None
+    else:
+        positions = None
     return render(request, 'index.html', {'positions': positions})
 
 @login_required
