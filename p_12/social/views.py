@@ -494,6 +494,8 @@ def applications(request, applications="All Applications", project="All Projects
                 app_to_accept.accepted = True
                 app_to_accept.rejected = False
                 app_to_accept.position.position_filled_user = app_to_accept.person_applying
+                app_to_accept.position.save()
+                print("************** got past the position_filled_user")
                 app_to_accept.save()
 
                 models.Notification.objects.create(
@@ -519,6 +521,7 @@ def applications(request, applications="All Applications", project="All Projects
                 app_to_accept.rejected = False
                 if app_to_accept.accepted == True:
                     app_to_accept.position.position_filled_user = None
+                    app_to_accept.position.save()
                     app_to_accept.accepted = False
                     app_to_accept.save()
 
@@ -590,7 +593,7 @@ def applications(request, applications="All Applications", project="All Projects
 
 @login_required
 def notifications(request):
-    my_notifications = models.Notification.objects.all()
+    my_notifications = models.Notification.objects.order_by('-id').filter(person_notifying=request.user)
     return render(request, 'notifications.html', {'my_notifications': my_notifications})
 
 

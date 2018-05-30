@@ -41,7 +41,9 @@
 
 
         <div class="circle--fluid--cell">
-        {% is_notify %}
+        {% if user.is_authenticated %}
+          {% is_notify user=user %}
+        {% endif %}
       </div>
 
         <div class="circle--fluid--cell">

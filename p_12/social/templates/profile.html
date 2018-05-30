@@ -23,6 +23,7 @@
 
     <div class="grid-70">
       <h1>{{ profile.name }}</h1>
+      <h3>username: {{ profile.user.username }}</h3>
       <div class="circle--article--body">
         <p>{{ profile.description }}</p>
       </div>
@@ -38,7 +39,7 @@
         <tbody>
           {% if positions %}
             {% for position in positions %}
-            <tr class="clickable-row" data-href="project.html">
+            <tr class="clickable-row" data-href="{% url 'base:project' url_slug=position.project.url_slug %}">
               <td>
                 <h3>{{ position.project.project_name }}</h3>
               </td>

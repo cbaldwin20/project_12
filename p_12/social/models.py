@@ -69,6 +69,9 @@ class Application(models.Model):
     rejected = models.BooleanField(default=False)
     applied_date = models.DateField(auto_now_add=True)
 
+    class Meta:
+        unique_together = ('position', 'person_applying')
+
 
 class Notification(models.Model):
     description = models.CharField(max_length=255)

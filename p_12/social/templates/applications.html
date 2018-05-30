@@ -79,25 +79,27 @@
         <tbody>
           {% if all_applications %}
             {% for an_application in all_applications %}
-            <tr class="clickable-row" data-href="profile.html">
-              {% if an_application.accepted == False %}
-                {% if an_application.rejected == False %}
-              <a href="{% url 'base:action_applications' applications=applications project=project need=need action='accept' app_pk=an_application.id %}" class="button button-primary">Accept applicant</a>
-              <a href="{% url 'base:action_applications' applications=applications project=project need=need action='reject' app_pk=an_application.id %}" class="button button-primary">Reject applicant</a>
-                {% else %}
-                  <a href="{% url 'base:action_applications' applications=applications project=project need=need action='undo' app_pk=an_application.id %}" class="button button-primary">Rejected/undo</a>
-                {% endif %}
-              {% else %}
-                <a href="{% url 'base:action_applications' applications=applications project=project need=need action='undo' app_pk=an_application.id %}" class="button button-primary button-inactive">Accepted/undo</a>
-              {% endif %}
+            <tr class="clickable-row" data-href="{% url 'base:profile' url_slug=an_application.person_applying.profile_user.url_slug %}">
               <td>
-                <h3><a href="{% url 'base:profile' url_slug=an_application.person_applying.user.url_slug %}">
+                <h3 style="margin-bottom:20px;"><a href="{% url 'base:profile' url_slug=an_application.person_applying.profile_user.url_slug %}">
                 {{ an_application.person_applying.username }}</a></h3>
                 <p><a href="{% url 'base:project' url_slug=an_application.position.project.url_slug %}">{{ an_application.position.project.project_name }}</a></p>
               </td>
               <td class="circle--cell--right">
                 <span class="secondary-label">{{ an_application.position.position_name }}</span>
               </td>
+              <td>
+              {% if an_application.accepted == False %}
+                {% if an_application.rejected == False %}
+              <a style="margin-left:15px;" href="{% url 'base:action_applications' applications=applications project=project need=need action='accepted' app_pk=an_application.id %}" class="button button-primary">Accept applicant</a>
+              <a style="margin-left:15px;" href="{% url 'base:action_applications' applications=applications project=project need=need action='rejected' app_pk=an_application.id %}" class="button button-primary">Reject applicant</a>
+                {% else %}
+                  <a href="{% url 'base:action_applications' applications=applications project=project need=need action='undo' app_pk=an_application.id %}" class="button button-primary">Rejected/undo</a>
+                {% endif %}
+              {% else %}
+                <a href="{% url 'base:action_applications' applications=applications project=project need=need action='undo' app_pk=an_application.id %}" class="button button-primary button-inactive">Accepted/undo</a>
+              {% endif %}
+            </td>
             </tr>
             {% endfor %}
           {% else %}
