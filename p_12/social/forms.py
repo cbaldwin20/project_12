@@ -44,22 +44,34 @@ class PositionForm(forms.ModelForm):
 
         
 class ProfileMyProjectsForm(forms.ModelForm):
+    project_name = forms.CharField(max_length=255, required=False)
+    url = forms.URLField(max_length=255, required=False)
     class Meta:
         fields = (
             "project_name",
-            "url_slug")
-        model = models.Project
+            "url")
+        model = models.OutsideProject
 
-    def clean(self, *args, **kwargs):
-        data = self.cleaned_data
-        project_name = data.get('project_name', None)
-        url = data.get('url', None)
-        if project_name and url:
-            try:
-                models.Project.objects.get(project_name=project_name, url=url)
-            except models.Project.DoesNotExist:
-                raise forms.ValidationError('This project with url: {}, project name: {}, does not exist.'.format(url, project_name))
-        return super().clean(*args, **kwargs)
+    def clean(self):
+        cleaned_data = super().clean()
+        p_name = cleaned_data.get("project_name")
+        the_url = cleaned_data.get("url")
+
+        if p_name == "":
+            if the_url != "":
+                raise forms.ValidationError(
+                    "Did not fill out the project name"
+                )
+
+        if the_url == "":
+            if p_name != "":
+                raise forms.ValidationError(
+                    "Did not fill out the project's url"
+                )
+
+
+        
+
 
 class ApplicationForm(forms.ModelForm):
     class Meta:

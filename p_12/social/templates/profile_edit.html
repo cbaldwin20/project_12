@@ -127,10 +127,10 @@
                     {{ projectform.non_field_errors }}
                     {{ projectform.errors }}
                     
+                    {% if projectform.instance.pk %}{{ projectform.DELETE }}{% endif %}
                     {% render_field projectform.project_name placeholder="Project Name" %}
-                    {% render_field projectform.url_slug placeholder="Project URL" %}
-                  <a class="circle--clone--add">Add Project</a>
-                  <a class="circle--clone--remove">Remove</a>
+                    {% render_field projectform.url placeholder="Project URL" %}
+                  
                 </li>
                   {% endfor %}
                 
@@ -152,6 +152,7 @@
             });
 
             $('#projects li').formset({
+              addText: 'Add Project',
               prefix: '{{ projects_formset.prefix }}',
               formCssClass: 'dynamic-projects_formset'
 

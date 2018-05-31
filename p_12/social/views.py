@@ -247,7 +247,7 @@ def profile_new(request):
     
 
     Projects_form = modelformset_factory(
-        models.Project,
+        models.OutsideProject,
         form=forms.ProfileMyProjectsForm,
         extra=1,
         )
@@ -259,7 +259,7 @@ def profile_new(request):
         )
 
     user_profile_form = forms.ProfileForm(prefix='user_profile_new')
-    projects_formset = Projects_form(queryset=models.Project.objects.none(), prefix='projects_formset_new')
+    projects_formset = Projects_form(queryset=models.OutsideProject.objects.none(), prefix='projects_formset_new')
     skills_formset = Skills_form(queryset=models.Skill.objects.none(), prefix='skills_formset_new')
 
     if request.method == "POST":
@@ -287,7 +287,8 @@ def profile_new(request):
                                 # I'm not creating a new project here, just 
                                 # adding the the profile's projects manytomanyfield
                                 project = project.save(commit=False)
-                                final_user_profile.projects.add(project)
+                                project.creator = request.user
+                                project.save()
 
                     for skill in skills_formset:
                         if skill.is_valid():
@@ -339,7 +340,7 @@ def profile_edit(request):
     
     
     Projects_form = modelformset_factory(
-        models.Project,
+        models.OutsideProject,
         form=forms.ProfileMyProjectsForm,
         extra=1,
         can_delete=True,
@@ -359,7 +360,7 @@ def profile_edit(request):
     # and put them into formsets. 
     
     user_profile_form = forms.ProfileForm(instance=user_profile,prefix='user_profile')
-    projects_formset = Projects_form(queryset=user_profile.projects.all(), prefix='projects_formset')
+    projects_formset = Projects_form(queryset=user_profile.user.outsideproject_owner.all(), prefix='projects_formset')
     skills_formset = Skills_form(queryset=user_profile.skills.all(), prefix='skills_formset')
         
     
@@ -375,13 +376,21 @@ def profile_edit(request):
                 if skills_formset.is_valid():
                     final_user_profile = user_profile_form.save()
 
+                    models.OutsideProject.objects.filter(creator=request.user).delete()
                     for project in projects_formset:
                         if project.is_valid():
                             if project.cleaned_data:
-                                # I'm not creating a new project here, just 
-                                # adding the the profile's projects manytomanyfield
-                                project = project.save(commit=False)
-                                final_user_profile.projects.add(project)
+                                project_name = project.cleaned_data['project_name']
+                                if project_name != "":
+                                    final_project = project.save(commit=False)
+                                    final_project.creator = request.user
+                                    final_project.save()
+                                
+                    for project in projects_formset.deleted_forms:
+                        if project.is_valid():
+                            project_to_delete = project.save(commit=False)
+                            project_to_delete.delete()
+                            
 
                     for skill in skills_formset:
                         if skill.is_valid():
@@ -447,8 +456,9 @@ def profile(request, url_slug=None):
     # create my profile. 
     profile = get_object_or_404(models.Profile, url_slug=url_slug)
     my_projects = models.Project.objects.filter(creator=request.user)
+    my_outside_projects = models.OutsideProject.objects.filter(creator=request.user)
     positions = models.Position.objects.filter(position_filled_user=request.user)
-    return render(request, 'profile.html', {'profile': profile, 'positions': positions, 'my_projects': my_projects })
+    return render(request, 'profile.html', {'profile': profile, 'positions': positions, 'my_projects': my_projects, 'my_outside_projects': my_outside_projects})
 
 
 

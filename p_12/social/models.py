@@ -21,6 +21,11 @@ class Project(models.Model):
     project_timeline = models.TextField()
     application_requirements = models.TextField()
     url_slug = models.SlugField(unique=True)
+
+class OutsideProject(models.Model):
+    project_name = models.CharField(max_length=255,)
+    creator = models.ForeignKey(User, on_delete=True, related_name='outsideproject_owner')
+    url = models.URLField(max_length=200)
     
 
 
