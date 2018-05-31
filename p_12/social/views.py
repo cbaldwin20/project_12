@@ -199,7 +199,7 @@ def project(request, url_slug, position_pk=None, action=None):
                         app_to_change.position.position_name, app_to_change.position.project.project_name),
                     )
 
-            messages.success(request, "You made {}'s application for {} into 'undecided'".format(app_to_change.person_applying.username, the_position.position_name))
+            messages.success(request, "You made {}'s application for {} into 'undecided'".format(app_to_change.person_applying.profile_user.name, the_position.position_name))
 
     the_project = get_object_or_404(models.Project, url_slug=url_slug)
     return render(request, 'project.html', {'the_project': the_project})
@@ -503,7 +503,7 @@ def applications(request, applications="All Applications", project="All Projects
                     description = "Your application '{}' for project '{}' has been approved. You got the job!".format(
                         app_to_accept.position.position_name, app_to_accept.position.project.project_name),
                     )
-                messages.success(request, "{} application for {} accepted.".format(app_to_accept.person_applying.username, app_to_accept.position.position_name))
+                messages.success(request, "{} application for {} accepted.".format(app_to_accept.person_applying.profile_user.name, app_to_accept.position.position_name))
 
             elif action == "rejected":
                 app_to_accept.rejected = True
@@ -515,7 +515,7 @@ def applications(request, applications="All Applications", project="All Projects
                     description = "Your application '{}' for project '{}' has been denied".format(
                         app_to_accept.position.position_name, app_to_accept.position.project.project_name),
                     )
-                messages.success(request, "{} application for {} rejected.".format(app_to_accept.person_applying.username, app_to_accept.position.position_name))
+                messages.success(request, "{} application for {} rejected.".format(app_to_accept.person_applying.profile_user.name, app_to_accept.position.position_name))
 
             elif action == "undo":
                 app_to_accept.rejected = False
@@ -530,7 +530,7 @@ def applications(request, applications="All Applications", project="All Projects
                     description = "Your application '{}' for project '{}' has been changed to undecided.".format(
                         app_to_accept.position.position_name, app_to_accept.position.project.project_name),
                     )
-                messages.success(request, "{} application for {} changed to undecided.".format(app_to_accept.person_applying.username, app_to_accept.position.position_name))
+                messages.success(request, "{} application for {} changed to undecided.".format(app_to_accept.person_applying.profile_user.name, app_to_accept.position.position_name))
 
     all_applications = models.Application.objects.filter(
         position__project__creator=request.user)

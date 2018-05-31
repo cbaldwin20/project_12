@@ -82,7 +82,7 @@
             <tr class="clickable-row" data-href="{% url 'base:profile' url_slug=an_application.person_applying.profile_user.url_slug %}">
               <td>
                 <h3 style="margin-bottom:20px;"><a href="{% url 'base:profile' url_slug=an_application.person_applying.profile_user.url_slug %}">
-                {{ an_application.person_applying.username }}</a></h3>
+                {{ an_application.person_applying.profile_user.name }}</a></h3>
                 <p><a href="{% url 'base:project' url_slug=an_application.position.project.url_slug %}">{{ an_application.position.project.project_name }}</a></p>
               </td>
               <td class="circle--cell--right">
