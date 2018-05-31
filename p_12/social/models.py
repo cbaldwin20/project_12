@@ -21,7 +21,7 @@ class Project(models.Model):
     project_timeline = models.TextField()
     application_requirements = models.TextField()
     url_slug = models.SlugField(unique=True)
-    active = models.BooleanField(default=True)
+    
 
 
 class Profile(models.Model):

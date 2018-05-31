@@ -21,13 +21,6 @@
         <h1 class="circle--article--title">{{ the_project.project_name }}</h1>
         <p class="circle--article--byline">Project Owner: 
           <a href="{% url 'base:profile' url_slug=the_project.creator.profile_user.url_slug %}">{{ the_project.creator }}</a></p>
-        {% if the_project.active %}
-        <p></p>
-        <p class="circle--article--byline">Project status: <strong>ACTIVE</strong></p>
-        {% else %}
-        <p></p>
-        <p class="circle--article--byline">Project status: <strong>INACTIVE</strong></p>
-        {% endif %}
       </div>
 
       <div class="circle--article--body">

@@ -92,7 +92,6 @@ def project_new(request):
             if project_form.is_valid():
                 user_project = project_form.save(commit=False)
                 user_project.creator = request.user
-                user_project.active = True
                 now = datetime.datetime.now()
                 seconds = int(time.mktime(now.timetuple())) 
                 user_project.url_slug = "{}-{}".format(seconds, slugify(user_project.project_name))

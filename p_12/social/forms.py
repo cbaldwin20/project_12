@@ -7,7 +7,7 @@ class UserCreateForm(UserCreationForm):
     """I am overriding the standard UserCreationForm
     to manipulate the fields a bit"""
     class Meta:
-        fields = ("email", "password1", "password2")
+        fields = ("username", "email", "password1", "password2")
         model = User
 
 
@@ -28,8 +28,7 @@ class ProjectForm(forms.ModelForm):
     
     class Meta:
         fields = (
-            "project_name", "description", "project_timeline", "application_requirements",
-            "active")
+            "project_name", "description", "project_timeline", "application_requirements")
         model = models.Project
 
 
