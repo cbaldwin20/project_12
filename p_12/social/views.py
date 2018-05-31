@@ -47,7 +47,7 @@ def index(request, need="All Needs"):
         my_profile = models.Profile.objects.get(user=request.user)
     except models.Profile.DoesNotExist:
         return redirect('base:profile_new')
-    needs_list = set()
+    
     
     needs_list = ["All Needs"]
     my_skills = my_profile.skills.all()
@@ -578,7 +578,8 @@ def applications(request, applications="All Applications", project="All Projects
     if more_needs:
         for my_need in more_needs:
             all_needs.add(my_need.position_name)
-    all_needs.add("All Needs")
+    all_needs = list(all_needs)
+    all_needs.insert(0, "All Needs")
     statuses = ["All Applications", "New Applications", "Accepted", "Rejected"]
 
     return render(request, 'applications.html', {
