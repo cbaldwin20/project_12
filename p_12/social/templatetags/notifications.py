@@ -9,10 +9,12 @@ def is_notify(user):
 	notification = models.Notification.objects.filter(person_notifying=user, already_seen=False)
 	if notification:
 		to_notify = True
+		count = notification.count()
 	else:
 		to_notify = False
+		count = 0
 
-	return {'to_notify': to_notify}
+	return {'to_notify': to_notify, 'count': count }
 
 @register.simple_tag
 def notify_clear(user):
