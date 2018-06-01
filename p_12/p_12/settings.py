@@ -41,6 +41,9 @@ INSTALLED_APPS = [
     'social',
 ]
 
+# uses my custom User model instead of the provided default
+AUTH_USER_MODEL = 'social.User' 
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',

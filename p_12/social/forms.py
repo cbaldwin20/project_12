@@ -1,14 +1,13 @@
 from django.contrib.auth.forms import UserCreationForm
 from django import forms
-from django.contrib.auth.models import User
 from . import models
 
 class UserCreateForm(UserCreationForm):
     """I am overriding the standard UserCreationForm
     to manipulate the fields a bit"""
     class Meta:
-        fields = ("username", "email", "password1", "password2")
-        model = User
+        fields = ("email", "password1", "password2")
+        model = models.User
 
 
 class ProfileForm(forms.ModelForm):
