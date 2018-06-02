@@ -385,7 +385,11 @@ def profile_edit(request):
                         if project.is_valid():
                             if project.cleaned_data:
                                 project_name = project.cleaned_data['project_name']
-                                if project_name != "":
+                                if project_name.strip() == "":
+                                    project_delete = project.save(commit=False)
+                                    project_delete.delete()
+
+                                elif project_name != "":
                                     final_project = project.save(commit=False)
                                     final_project.creator = request.user
                                     final_project.save()
@@ -401,7 +405,7 @@ def profile_edit(request):
                             if skill.cleaned_data:
                                 #****I may need to add 'user', etc.
                                 name = skill.cleaned_data['name'].lower()
-                                if name == "":
+                                if name.strip() == "":
                                     # if the user erases one of the skills fields
                                     # then don't delete the skill but delete the 
                                     # instance in the profile's manytomanyfield. 
@@ -424,7 +428,7 @@ def profile_edit(request):
                                     # just deleting the many to many instance and replacing it with
                                     # the new one, even if its the same instance. This is in case
                                     # they delete or erase an instance. 
-                                    final_user_profile.skills.remove(skill)
+                                    
                                     final_user_profile.skills.add(skill_replace)
                                     print("*****************saved the skill.")
                                     
