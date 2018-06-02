@@ -34,7 +34,7 @@ class ProjectForm(forms.ModelForm):
 class PositionForm(forms.ModelForm):
     class Meta:
         fields = (
-            "position_name", "position_description")
+            "position_name", "position_description", "hours_per_week")
         model = models.Position
 
 

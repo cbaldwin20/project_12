@@ -36,6 +36,20 @@
           </tr>
         </thead>
         <tbody>
+
+          
+            {% for my_project in profile.projects.all %}
+            <tr class="clickable-row" data-href="{% url 'base:project' url_slug=my_project.url_slug %}">
+              <td>
+                <h3>{{ my_project.project_name }}</h3>
+              </td>
+              <td class="circle--cell--right">
+                <span class="secondary-label">Creator of project</span>
+              </td>
+            </tr>
+            {% endfor %}
+          
+
           {% if positions %}
             {% for position in positions %}
             <tr class="clickable-row" data-href="{% url 'base:project' url_slug=position.project.url_slug %}">
@@ -49,7 +63,9 @@
             {% endfor %}
             
           {% else %}
-          <td><p>There are no past projects for you</p></td>
+            {% if not profile.projects.all %}
+              <td><p>There are no past projects for you</p></td>
+            {% endif %}
           {% endif %}
         </tbody>
       </table>

@@ -42,6 +42,7 @@
 
             {% render_field position_form.position_name class+="circle--input--h3" placeholder="Position Title" %}
             {% render_field position_form.position_description placeholder="Position description..." %}
+            <p>Hours per week: {% render_field position_form.hours_per_week %}</p>
             
           </li>
           {% endfor %}

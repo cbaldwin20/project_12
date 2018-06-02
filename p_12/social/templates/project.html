@@ -20,7 +20,7 @@
         <h4 class="circle--article--section">Project</h4>
         <h1 class="circle--article--title">{{ the_project.project_name }}</h1>
         <p class="circle--article--byline">Project Owner: 
-          <a href="{% url 'base:profile' url_slug=the_project.creator.profile_user.url_slug %}">{{ the_project.creator }}</a></p>
+          <a href="{% url 'base:profile' url_slug=the_project.creator.profile_user.url_slug %}">{{ the_project.creator.profile_user.name }}</a></p>
       </div>
 
       <div class="circle--article--body">
@@ -34,6 +34,7 @@
           {% for position in the_project.project_positions.all %}
           <li>
             <h3>{{ position.position_name }}</h3>
+            <h5>hours per week: {{ position.hours_per_week }}</h5>
             <p>{{ position.position_description }}</p>
 
 

@@ -127,6 +127,7 @@ class Position(models.Model):
     position_name = models.CharField(max_length=255)
     position_description = models.TextField()
     project = models.ForeignKey(Project, on_delete=True, related_name='project_positions')
+    hours_per_week = models.IntegerField(default=0)
     position_filled_user = models.ForeignKey(User, on_delete=True, related_name='my_position_for_project', blank=True,
     null=True,)
 

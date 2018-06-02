@@ -96,6 +96,8 @@ def project_new(request):
                 seconds = int(time.mktime(now.timetuple())) 
                 user_project.url_slug = "{}-{}".format(seconds, slugify(user_project.project_name))
                 user_project.save()
+                profile_to_link = models.Profile.objects.get(user=request.user)
+                user_project.user_projects.add(profile_to_link)
 
                 for position in positions_formset:
                     if position.cleaned_data:
@@ -137,6 +139,8 @@ def project_edit(request, url_slug):
         if positions_formset.is_valid():
             if project_form.is_valid():
                 user_project = project_form.save()
+                profile_to_link = models.Profile.objects.get(user=request.user)
+                user_project.user_projects.add(profile_to_link)
 
                 for position in positions_formset:
                     if position.cleaned_data:
@@ -367,7 +371,7 @@ def profile_edit(request):
 
     if request.method == "POST":
         user_profile_form = forms.ProfileForm(request.POST, request.FILES, instance=user_profile, prefix='user_profile')
-        projects_formset = Projects_form(request.POST, queryset=user_profile.projects.all(), prefix='projects_formset')
+        projects_formset = Projects_form(request.POST, queryset=user_profile.user.outsideproject_owner.all(), prefix='projects_formset')
         skills_formset = Skills_form(request.POST, queryset=user_profile.skills.all(), prefix='skills_formset')
         if user_profile_form.is_valid():
             print("*****************Got to right before the projects_formset")
@@ -376,7 +380,7 @@ def profile_edit(request):
                 if skills_formset.is_valid():
                     final_user_profile = user_profile_form.save()
 
-                    models.OutsideProject.objects.filter(creator=request.user).delete()
+                    
                     for project in projects_formset:
                         if project.is_valid():
                             if project.cleaned_data:

@@ -2,6 +2,7 @@
 a class view to login, I have it commented out in the views file  -->
 
 {% extends 'layout.html' %}
+{% load widget_tweaks %}
 
 {% block body %}
 
@@ -10,7 +11,10 @@ a class view to login, I have it commented out in the views file  -->
       <h2>Sign In</h2>
       <form method="POST">
         {% csrf_token %}
-        {{ form.as_p }}
+        <p style="color:red;">{{ form.errors.as_text }}</p>
+
+        {% render_field form.username placeholder="Email Address" %}
+        {% render_field form.password placeholder="Password" %}
         <button type="submit" class="button-primary">Sign In</button>
         <a class="button" href="{% url 'signup' %}">Sign Up</a>
       </form>

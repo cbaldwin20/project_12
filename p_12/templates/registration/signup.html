@@ -1,4 +1,5 @@
  {% extends 'layout.html' %}
+ {% load widget_tweaks %}
 
 {% block body %}
 
@@ -7,11 +8,18 @@
       <h2>Sign Up</h2>
       <form method="POST">
         {% csrf_token %}
-        {{ form.as_p }}
+        
+        <p style="color:red;">{{ form.non_field_errors.as_text }}</p>
+        <p style="color:red;">{{ form.errors.as_text }}</p>
+        
+        {% render_field form.email placeholder="Email Address" %}
+        
+        {% render_field form.password1 placeholder="Password" %}
+        {% render_field form.password2 placeholder="Confirm Password" %}
         <button type="submit" class="button-primary">Sign Up</button>
         <a class="button" href="{% url 'login' %}">Sign In</a>
       </form>
     </div>
   </div>
 
-{% endblock %}
+{% endblock %} 
