@@ -5,15 +5,46 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from . import models
 from . import forms
 
+one_user = {
+	"email":"123@gmail.com",
+	"password":"123ABC!@#"
+}
 
+# need to manually add 'creator' (user)
+one_project = {
+	"project_name":"My project",
+	"description":"LJSDLFJlsjdflasjdfljasldffjf",
+	"project_timeline":"6 months",
+	"application_requirements":"Must come to headquarters",
+	"url_slug":"my_project"
+}
 
+# need to manually add 'creator' (user)
+one_outsideproject = {
+	"project_name":"My Website",
+	"url":"www.google.com"
+}
+
+# need to manually create 'user'
+one_profile = {
+	"name":"Michael Jordan",
+	"description":"JKlkjjsdlfk sldjf lsdfkj",
+	"url_slug":"michael_jordan"
+}
+
+# need to manually create 'position_filled_user' and
+# 'project'
+one_position = {
+	"position_name":"Designer",
+	"position_description":"LKJD sljflsdfj",
+	"hours_per_week":40,
+}
 
 ######## testing the models.py
 class UserModelTest(TestCase):
 	def test_user(self):
 		first_user = models.User.objects.create_user(
-		email = "123@gmail.com",
-		password = "123ABC!@#")
+		**one_user)
 
 		self.assertTrue(models.User.objects.first())
 		self.assertEqual(first_user.email, "123@gmail.com")
@@ -41,16 +72,11 @@ class SkillModelTest(TestCase):
 class ProjectModelTest(TestCase):
 	def test_project(self):
 		first_user = models.User.objects.create_user(
-		email = "123@gmail.com",
-		password = "123ABC!@#")
+		**one_user)
 
 		models.Project.objects.create(
-			project_name="My project",
-			creator = first_user,
-			description="LJSDLFJlsjdflasjdfljasldffjf",
-			project_timeline="6 months",
-			application_requirements="Must come to headquarters",
-			url_slug="my_project")
+			**one_project,
+			creator=first_user)
 
 		project_verify = models.Project.objects.first()
 		self.assertTrue(project_verify)
@@ -60,23 +86,17 @@ class ProjectModelTest(TestCase):
 		# fail creating a project with no creator.
 		with self.assertRaises(IntegrityError):
 			models.Project.objects.create(
-				project_name="My project",
-				description="LJSDLFJlsjdflasjdfljasldffjf",
-				project_timeline="6 months",
-				application_requirements="Must come to headquarters",
-				url_slug="my_project")
+				**one_project)
 
 
 class OutsideProject(TestCase):
 	def test_outside_project(self):
 		first_user = models.User.objects.create_user(
-		email = "123@gmail.com",
-		password = "123ABC!@#")
+		**one_user)
 
 		models.OutsideProject.objects.create(
-			project_name="My Website",
+			**one_outsideproject,
 			creator=first_user,
-			url="www.google.com" 
 			)
 		outside_project1 = models.OutsideProject.objects.first()
 		self.assertTrue(outside_project1)
@@ -86,21 +106,18 @@ class OutsideProject(TestCase):
 
 		with self.assertRaises(IntegrityError):
 			models.OutsideProject.objects.create(
-				project_name="My Website",
-				url="www.google.com" 
+				**one_outsideproject
 				)
 		
 class ProfileModelTest(TestCase):
 	def test_profile_model(self):
 		first_user = models.User.objects.create_user(
-		email = "123@gmail.com",
-		password = "123ABC!@#")
+		**one_user)
 
 		models.Profile.objects.create(
-			name="Michael Jordan",
-			description="JKlkjjsdlfk sldjf lsdfkj",
-			user=first_user,
-			url_slug="michael_jordan")
+			**one_profile,
+			user=first_user
+			)
 
 		profile1 = models.Profile.objects.first()
 		self.assertEqual(profile1.name, "Michael Jordan")
@@ -108,29 +125,21 @@ class ProfileModelTest(TestCase):
 	def test_profile_model_fail(self):
 		with self.assertRaises(IntegrityError):
 			models.Profile.objects.create(
-			name="Michael Jordan",
-			description="JKlkjjsdlfk sldjf lsdfkj",
-			url_slug="michael_jordan")
+			**one_profile)
 
 class PositionModelTest(TestCase):
 	def test_position_model(self):
 		first_user = models.User.objects.create_user(
-		email = "123@gmail.com",
-		password = "123ABC!@#")
+		**one_user)
 
 		project1 = models.Project.objects.create(
-			project_name="My project",
+			**one_project,
 			creator = first_user,
-			description="LJSDLFJlsjdflasjdfljasldffjf",
-			project_timeline="6 months",
-			application_requirements="Must come to headquarters",
-			url_slug="my_project")
+			)
 
 		models.Position.objects.create(
-			position_name="Designer",
-			position_description="LKJD sljflsdfj",
+			**one_position,
 			project=project1,
-			hours_per_week=40,
 			position_filled_user=first_user,
 			)
 
@@ -140,31 +149,23 @@ class PositionModelTest(TestCase):
 	def position_model_test_fail(self):
 		with self.assertRaises(IntegrityError):
 			models.Position.objects.create(
-			position_name="Designer",
-			position_description="LKJD sljflsdfj",
-			hours_per_week=40,
+			**one_position
 			)
 
 
 class ApplicationModelTest(TestCase):
 	def test_application_model(self):
 		first_user = models.User.objects.create_user(
-		email = "123@gmail.com",
-		password = "123ABC!@#")
+		**one_user)
 
 		project1 = models.Project.objects.create(
-			project_name="My project",
+			**one_project,
 			creator = first_user,
-			description="LJSDLFJlsjdflasjdfljasldffjf",
-			project_timeline="6 months",
-			application_requirements="Must come to headquarters",
-			url_slug="my_project")
+			)
 
 		position1 = models.Position.objects.create(
-			position_name="Designer",
-			position_description="LKJD sljflsdfj",
+			**one_position,
 			project=project1,
-			hours_per_week=40,
 			position_filled_user=first_user,
 			)
 
