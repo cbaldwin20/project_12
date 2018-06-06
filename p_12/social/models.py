@@ -132,13 +132,6 @@ class Position(models.Model):
     null=True,)
 
 
-class SkillDescriptions(models.Model):
-    description = models.TextField()
-    skill = models.ForeignKey(Skill, on_delete=True, related_name='skill_description')
-    project_owner = models.ForeignKey(User, on_delete=True, related_name='user_of_description')
-
-
-
 class Application(models.Model):
     position = models.ForeignKey(Position, on_delete=True, related_name='position_applications')
     person_applying = models.ForeignKey(User, on_delete=True, related_name='applications')
