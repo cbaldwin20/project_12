@@ -1,5 +1,6 @@
 
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.messages.views import SuccessMessageMixin
 
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
@@ -619,8 +620,9 @@ class LogoutView(generic.RedirectView):
 
 
 
-class SignUp(generic.CreateView):
+class SignUp(SuccessMessageMixin, generic.CreateView):
     form_class = forms.UserCreateForm
     success_url = reverse_lazy('login')
+    success_message = "Registered successfully"
     template_name = 'registration/signup.html'
 
