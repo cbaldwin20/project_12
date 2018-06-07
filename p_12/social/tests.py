@@ -1,6 +1,8 @@
-from django.test import TestCase
+from django.test import TestCase, Client
 from django.db import IntegrityError
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.urls import reverse
 
 from . import models
 from . import forms
@@ -310,3 +312,178 @@ class ApplicationFormTest(TestCase):
 			})
 		self.assertTrue(form.is_valid())
 		self.assertEqual(form.cleaned_data.get('accepted'), True)
+
+
+################# testing the views.py 
+
+class ProfileNewViewTest(TestCase):
+	def setUp(self):
+		first_user = models.User.objects.create_user(
+		**one_user)
+		self.client = Client()
+		self.client.force_login(first_user)
+	def test_profile_new_get(self):
+		response = self.client.get(reverse('base:profile_new'))
+		self.assertEqual(response.status_code, 200)
+		self.assertTemplateUsed(response, 'profile_edit.html')
+		self.assertContains(response, 'Profile')
+	
+class ProfileEditViewTest(TestCase):
+	def setUp(self):
+		first_user = models.User.objects.create_user(
+		**one_user)
+		self.client = Client()
+		self.client.force_login(first_user)
+
+		models.Profile.objects.create(
+			**one_profile,
+			user=first_user
+			)
+	def test_profile_edit_get(self):
+		response = self.client.get(reverse('base:profile_edit'))
+		self.assertEqual(response.status_code, 200)
+
+class ProfileViewTest(TestCase):
+	def setUp(self):
+		first_user = models.User.objects.create_user(
+		**one_user)
+		self.client = Client()
+		self.client.force_login(first_user)
+
+		models.Profile.objects.create(
+			**one_profile,
+			user=first_user
+			)
+	def test_profile_view(self):
+		profile_1 = models.Profile.objects.first()
+		response = self.client.get(reverse('base:profile', args=[profile_1.url_slug]))
+		self.assertEqual(response.status_code, 200)
+
+class ProjectNewViewTest(TestCase):
+	def setUp(self):
+		first_user = models.User.objects.create_user(
+		**one_user)
+		self.client = Client()
+		self.client.force_login(first_user)
+
+	def test_project_new_get(self):
+		response = self.client.get(reverse('base:project_new'))
+		self.assertEqual(response.status_code, 200)
+
+
+class ProjectEditViewTest(TestCase):
+	def setUp(self):
+		first_user = models.User.objects.create_user(
+		**one_user)
+		self.client = Client()
+		self.client.force_login(first_user)
+
+		models.Project.objects.create(
+			**one_project, creator=first_user)
+
+	def test_project_edit_get(self):
+		project1 = models.Project.objects.first()
+		response = self.client.get(reverse('base:project_edit', args=[project1.url_slug]))
+		self.assertEqual(response.status_code, 200)
+
+class ProjectViewTest(TestCase):
+	def setUp(self):
+		first_user = models.User.objects.create_user(
+		**one_user)
+		self.client = Client()
+		self.client.force_login(first_user)
+
+		models.Profile.objects.create(
+			**one_profile,
+			user=first_user
+			)
+
+		models.Project.objects.create(
+			**one_project, creator=first_user)
+
+	def test_project(self):
+		project1 = models.Project.objects.first()
+		response = self.client.get(reverse('base:project', args=[project1.url_slug]))
+		self.assertEqual(response.status_code, 200)
+
+class IndexViewTest(TestCase):
+	def setUp(self):
+		first_user = models.User.objects.create_user(
+		**one_user)
+		self.client = Client()
+		self.client.force_login(first_user)
+
+		models.Profile.objects.create(
+			**one_profile,
+			user=first_user)
+
+	def test_index(self):
+		response = self.client.get(reverse('base:home'))
+		self.assertEqual(response.status_code, 200)
+
+	def test_index_2(self):
+		response = self.client.get(reverse('base:home_need', args=["designer"]))
+		self.assertEqual(response.status_code, 200)
+
+class ProjectDeleteViewTest(TestCase):
+	def setUp(self):
+		first_user = models.User.objects.create_user(
+		**one_user)
+		self.client = Client()
+		self.client.force_login(first_user)
+
+		models.Profile.objects.create(
+			**one_profile,
+			user=first_user
+			)
+
+		models.Project.objects.create(
+			**one_project, creator=first_user)
+	def test_project_delete(self):
+		proj_1 = models.Project.objects.first()
+		response = self.client.get(reverse('base:project_delete', args=[proj_1.url_slug]))
+		self.assertEqual(response.status_code, 302)
+		with self.assertRaises(ObjectDoesNotExist):
+			models.Project.objects.get(project_name="My project")
+
+class SearchViewTest(TestCase):
+	def setUp(self):
+		first_user = models.User.objects.create_user(
+		**one_user)
+		self.client = Client()
+		self.client.force_login(first_user)
+
+	def test_search(self):
+		response = self.client.get('%s?q=Abra' % reverse('base:search'))
+		self.assertEqual(response.status_code, 200)
+
+
+class ApplicationsViewTest(TestCase):
+	def setUp(self):
+		first_user = models.User.objects.create_user(
+		**one_user)
+		self.client = Client()
+		self.client.force_login(first_user)
+
+		models.Profile.objects.create(
+			**one_profile,
+			user=first_user
+			)
+
+	def test_applications(self):
+		response = self.client.get(reverse('base:home_applications'))
+		self.assertEqual(response.status_code, 200)
+
+
+class LogOutViewTest(TestCase):
+	def setUp(self):
+		first_user = models.User.objects.create_user(
+		**one_user)
+		self.client = Client()
+		self.client.force_login(first_user)
+
+	def test_logout(self):
+		response = self.client.get(reverse('loggedout'))
+		self.assertEqual(response.status_code, 302)
+		self.assertTemplateUsed('login.html')
+		

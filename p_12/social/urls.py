@@ -31,7 +31,7 @@ urlpatterns = [
     
     url(r'^search/(?P<need>[-\w ]+)$', views.search, name='search'),
 
-    url(r'^practice$', views.practice, name='practice'),
+    
 
     
     

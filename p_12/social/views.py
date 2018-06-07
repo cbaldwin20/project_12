@@ -28,17 +28,7 @@ from . import models
 from . import forms 
 
 
-@login_required
-def practice(request):
-    Skills_form = modelformset_factory(
-        models.Skill,
-        form=forms.SkillForm,
-        extra=1,
-        )
-    
-    skills_formset1 = Skills_form(queryset=models.Skill.objects.none(), prefix='skills_formset1')
 
-    return render(request, 'practice.html', {'skills_formset1': skills_formset1})
 
 
 @login_required
@@ -214,7 +204,7 @@ def project_delete(request, url_slug):
     except models.Project.DoesNotExist:
         return redirect('base:home')
 
-    for position in project_delete.project_positions:
+    for position in project_delete.project_positions.all():
         for application in position.position_applications:
             application.delete()
         position.delete()
@@ -470,7 +460,7 @@ def profile(request, url_slug=None):
 
 
 
-
+@login_required
 def search(request, need="All Needs"):
     """activates when search field is used """
     need=need 
