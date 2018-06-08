@@ -578,8 +578,7 @@ def applications(request, applications="All Applications", project="All Projects
 
         #************* filter need
         if need != "All Needs":
-            all_applications = all_applications.filter(position__position_name__icontains=need,
-                position__position_description__icontains=need)
+            all_applications = all_applications.filter(position__position_name__icontains=need)
 
     all_projects = models.Project.objects.filter(creator=request.user)
 
