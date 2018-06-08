@@ -470,15 +470,17 @@ def search(request, need="All Needs"):
         Q(project_name__icontains=term)|Q(description__icontains=term)|
         Q(application_requirements__icontains=term)|
         Q(project_positions__position_name__icontains=term)|
-        Q(project_positions__position_description__icontains=term))
+        Q(project_positions__position_description__icontains=term)).distinct()
 
     if need != "All Needs":
         matches = matches.filter(
         Q(project_positions__position_name__icontains=need)|
-        Q(project_positions__position_description__icontains=need))
+        Q(project_positions__position_description__icontains=need)).distinct()
 
     all_needs = ["All Needs", "Android Developer", "Designer", "Java Developer", 
     "PHP Developer", "Python Developer", "Rails Developer", "WordPress Developer", "iOS Developer"]
+
+    print("###############################This is the length {}".format(matches.count()))
 
     return render(request, 'search.html', {'matches': matches, 'term': term,
      'all_needs': all_needs,
