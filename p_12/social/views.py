@@ -273,6 +273,7 @@ def profile_new(request):
                 print("*****************Got to right after the projects_formset")
                 if skills_formset.is_valid():
                     final_user_profile = user_profile_form.save(commit=False)
+                    
                     final_user_profile.user = request.user
                     now = datetime.datetime.now()
                     seconds = int(time.mktime(now.timetuple())) 
