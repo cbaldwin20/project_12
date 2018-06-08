@@ -29,7 +29,7 @@ urlpatterns = [
     url(r'^applications/(?P<applications>[-\w ]+)/(?P<project>[-\w ]+)/(?P<need>[-\w ]+)/(?P<action>[-\w ]+)/(?P<app_pk>[-\d ]+)/$', views.applications, name='action_applications'),
                         
     
-    url(r'^search/(?P<need>[-\w ]+)$', views.search, name='search'),
+    url(r'^search/$', views.search, name='search'),
 
     
 

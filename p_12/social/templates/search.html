@@ -22,13 +22,15 @@
       <div class="circle--filter circle--secondary--module">
         <h4>Project Needs</h4>
         <ul class="circle--filter--list">
-          {% for the_need in all_needs %}
-            {% if the_need == need %}
-              <li><a href="{% url 'base:search' need=the_need %}" class="selected">{{ the_need }}</a></li>
-            {% else %}
-              <li><a href="{% url 'base:search' need=the_need %}">{{ the_need }}</a></li>
-            {% endif %}
-          {% endfor %}
+          {% if all_needs %}
+            {% for the_need in all_needs %}
+              {% if the_need == "All Needs" %}
+                <li><a href="{% url 'base:home_need' need=the_need %}" class="selected">{{ the_need }}</a></li>
+              {% else %}
+                <li><a href="{% url 'base:home_need' need=the_need %}">{{ the_need }}</a></li>
+              {% endif %}
+            {% endfor %}
+          {% endif %}
         </ul>
       </div>
     </div>

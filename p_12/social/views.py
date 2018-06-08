@@ -462,9 +462,8 @@ def profile(request, url_slug=None):
 
 
 @login_required
-def search(request, need="All Needs"):
+def search(request):
     """activates when search field is used """
-    need=need 
     term = request.GET.get('q')
     matches = models.Project.objects.filter(
         Q(project_name__icontains=term)|Q(description__icontains=term)|
@@ -472,19 +471,25 @@ def search(request, need="All Needs"):
         Q(project_positions__position_name__icontains=term)|
         Q(project_positions__position_description__icontains=term)).distinct()
 
-    if need != "All Needs":
-        matches = matches.filter(
-        Q(project_positions__position_name__icontains=need)|
-        Q(project_positions__position_description__icontains=need)).distinct()
+    
 
-    all_needs = ["All Needs", "Android Developer", "Designer", "Java Developer", 
-    "PHP Developer", "Python Developer", "Rails Developer", "WordPress Developer", "iOS Developer"]
+    
+    try:
+        my_profile = models.Profile.objects.get(user=request.user)
+    except models.Profile.DoesNotExist:
+        all_needs = []
+    else:
+        all_needs = ["All Needs"]
+        my_skills = my_profile.skills.all()
+        if my_skills:
+            for skill in my_skills:
+                all_needs.append(skill.name)
+    
 
     print("###############################This is the length {}".format(matches.count()))
 
     return render(request, 'search.html', {'matches': matches, 'term': term,
-     'all_needs': all_needs,
-     'need': need })
+     'all_needs': all_needs})
 
 
 
