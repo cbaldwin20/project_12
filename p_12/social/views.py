@@ -165,6 +165,11 @@ def project_edit(request, url_slug):
     
 
 def project(request, url_slug, position_pk=None, action=None):
+    try:
+        my_profile = models.Profile.objects.get(user=request.user)
+    except models.Profile.DoesNotExist:
+        my_profile = None 
+
     if position_pk:
         the_position = models.Position.objects.get(id=position_pk)
         if action == "apply":
@@ -196,7 +201,7 @@ def project(request, url_slug, position_pk=None, action=None):
             messages.success(request, "You made {}'s application for {} into 'undecided'".format(app_to_change.person_applying.profile_user.name, the_position.position_name))
 
     the_project = get_object_or_404(models.Project, url_slug=url_slug)
-    return render(request, 'project.html', {'the_project': the_project})
+    return render(request, 'project.html', {'the_project': the_project, 'my_profile': my_profile })
 
 @login_required
 def project_delete(request, url_slug):

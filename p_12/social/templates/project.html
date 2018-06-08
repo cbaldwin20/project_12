@@ -51,7 +51,11 @@
                       {% if did_i_apply %}
                             <a href="{% url 'base:project_position' url_slug=the_project.url_slug position_pk=position.id action='unapply' %}" class="button button-primary">You applied/unapply</a>
                       {% else %}
+                        {% if user.is_authenticated and my_profile %}
                             <a href="{% url 'base:project_position' url_slug=the_project.url_slug position_pk=position.id action='apply' %}" class="button button-primary">Apply</a>
+                        {% else %}
+                        <a class="button button-primary button-inactive">Position Not Filled</a>
+                  {% endif %}
                       {% endif %}
                   {% else %}
                       <a class="button button-primary button-inactive">Position Not Filled</a>

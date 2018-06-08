@@ -2,6 +2,7 @@
 
 {% block body %}
 
+{% if profile.user == user %}
   <div class="circle--actions--bar">
     <nav class="bounds">
       <ul class="circle--pill--list">
@@ -10,15 +11,18 @@
       </ul>
     </nav>
   </div>
+{% endif %}
 
   <div class="bounds circle--page">
     <div class="circle--page--header circle--fluid">
       <div class="circle--fluid--cell circle--fluid--primary">
         <h2>Profile</h2>
       </div>
+      {% if profile.user == user %}
       <div class="circle--fluid--cell circle--fluid--secondary">
         <a class="button icon-on-left" href="{% url 'base:profile_edit' %}">Edit</a>
       </div>
+      {% endif %}
     </div>
 
     <div class="grid-70">

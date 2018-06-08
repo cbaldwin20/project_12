@@ -53,7 +53,7 @@
             {% for match in matches %}
               {% for project_need in match.project_positions.all %}
                 {% if project_need.position_filled_user is None %}
-            <tr class="clickable-row" data-href="project.html">
+            <tr class="clickable-row" data-href="{% url 'base:project' url_slug=match.url_slug %}">
               <td>
                 <h3>{{ match.project_name }}</h3>
               </td>
