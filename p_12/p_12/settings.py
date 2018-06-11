@@ -42,7 +42,7 @@ INSTALLED_APPS = [
 ]
 
 # uses my custom User model instead of the provided default
-AUTH_USER_MODEL = 'social.User' 
+AUTH_USER_MODEL = 'social.User'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -59,7 +59,7 @@ ROOT_URLCONF = 'p_12.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['./templates',],
+        'DIRS': ['./templates', ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -91,16 +91,20 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        'NAME': 'django.contrib.auth.'
+        'password_validation.UserAttributeSimilarityValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'NAME': 'django.contrib.auth.'
+        'password_validation.MinimumLengthValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        'NAME': 'django.contrib.auth.'
+        'password_validation.CommonPasswordValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        'NAME': 'django.contrib.auth.'
+        'password_validation.NumericPasswordValidator',
     },
 ]
 
@@ -124,14 +128,14 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-# if logged in successfully will take me to the index page. 
+# if logged in successfully will take me to the index page.
 LOGIN_REDIRECT_URL = "base:home"
 
 EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
 EMAIL_FILE_PATH = os.path.join(BASE_DIR, "sent_emails")
 
 LOGIN_URL = '/accounts/login/'
-#LOGIN_REDIRECT_URL = '/'
+# LOGIN_REDIRECT_URL = '/'
 
 
 MEDIA_URL = '/media/'
