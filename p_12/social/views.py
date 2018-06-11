@@ -120,6 +120,7 @@ def project_edit(request, url_slug):
     Positions_form = modelformset_factory(
         models.Position,
         form=forms.PositionForm,
+        can_delete=True,
         )
     positions = models.Position.objects.filter(project=this_project)
     positions_formset = Positions_form(queryset=positions, prefix='positions_formset')
@@ -150,6 +151,7 @@ def project_edit(request, url_slug):
                                 the_position.delete()
 
                 for position in positions_formset.deleted_forms:
+                    print("***************got to the delete part")
                     if position.is_valid():
                         delete_position = position.save()
                         applications = models.Application.objects.filter(
@@ -157,6 +159,7 @@ def project_edit(request, url_slug):
                         if applications:
                             for application in applications:
                                 application.delete()
+                        print("***************this is the position to delete {}".format(delete_position))
                         delete_position.delete()
                 messages.success(request, 'Project updated!')
                 return redirect('base:project', url_slug=user_project.url_slug )
@@ -211,7 +214,7 @@ def project_delete(request, url_slug):
         return redirect('base:home')
 
     for position in project_delete.project_positions.all():
-        for application in position.position_applications:
+        for application in position.position_applications.all():
             application.delete()
         position.delete()
     messages.success(request, 'You deleted project: {}'.format(project_delete.project_name))
@@ -280,6 +283,7 @@ def profile_new(request):
                     final_user_profile.url_slug = "{}-{}".format(seconds, slugify(final_user_profile.name))
                     # here we have our profile for our user, ready for the projects
                     # and skills manytomany fields to be added. 
+
                     final_user_profile.save()
 
                     for project in projects_formset:
@@ -338,7 +342,7 @@ def profile_edit(request):
     previous_jobs = models.Position.objects.filter(
         position_filled_user=request.user
         )
-    
+    my_projects = models.Project.objects.filter(creator=request.user)
     
     Projects_form = modelformset_factory(
         models.OutsideProject,
@@ -441,7 +445,7 @@ def profile_edit(request):
 
     return render(
         request, 'profile_edit.html', 
-        {'user_profile_form': user_profile_form, 'projects_formset': projects_formset, 'skills_formset': skills_formset, 'previous_jobs': previous_jobs })
+        {'user_profile_form': user_profile_form, 'projects_formset': projects_formset, 'skills_formset': skills_formset, 'previous_jobs': previous_jobs, 'my_projects': my_projects })
                     
 
 

@@ -8,7 +8,7 @@
     <div class="bounds">
       <div class="grid-100">
         <a class="button" href="{% url 'base:project_edit' url_slug=the_project.url_slug %}">Edit Project</a>
-        <a class="button button-text" href="index.html">Delete Project</a>
+        <a class="button button-text" href="{% url 'base:project_delete' url_slug=the_project.url_slug %}">Delete Project</a>
       </div>
     </div>
   </div>

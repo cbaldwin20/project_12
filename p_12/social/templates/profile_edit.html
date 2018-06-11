@@ -45,8 +45,20 @@
           </tr>
         </thead>
         <tbody>
+
+          {% for project in my_projects %}
+          <tr class="clickable-row" data-href="{% url 'base:project' url_slug=project.url_slug %}">
+            <td>
+              <h3>{{ project.project_name }}</h3>
+            </td>
+            <td class="circle--cell--right">
+              <span class="secondary-label">Creator of project</span>
+            </td>
+          </tr>
+          {% endfor %}
+
           {% for previous_job in previous_jobs %}
-          <tr class="clickable-row" data-href="project.html">
+          <tr class="clickable-row" data-href="{% url 'base:project' url_slug=previous_job.project.url_slug %}">
             <td>
               <h3>{{ previous_job.project.project_name }}</h3>
             </td>
@@ -55,6 +67,13 @@
             </td>
           </tr>
           {% endfor %}
+
+          {% if not my_projects %}
+            {% if not previous_jobs %}
+              <td><p>There are no past projects for you</p></td>
+            {% endif %}
+          {% endif %}
+
         </tbody>
       </table>
     </div>
@@ -70,8 +89,8 @@
           {% endif %}
           
           <label for="id_user_profile_image" class="button">Upload Photo</label>
-            <input style='display:none' type="file" name="user_profile-image" id="id_user_profile_image" onchange="upload_img(this);">
             
+            {% render_field user_profile_form.image style='display:none' name="user_profile-image" id="id_user_profile_image" onchange="upload_img(this);" %}
             
             
           
