@@ -6,21 +6,21 @@
 <div class="grid-70">
 <div class="circle--article--body">
 {% if my_notifications %}
-	{% for notification in my_notifications %}
+    {% for notification in my_notifications %}
 
-		{% if notification.already_seen %}
-			<p>{{ notification.time_of_notification }} -- {{ notification.description }}<p>
-			<p></p>
-		{% else %}
-			<p><strong>{{ notification.time_of_notification }} -- {{ notification.description }}</strong><p>
-			<p></p>
-		{% endif %}
+        {% if notification.already_seen %}
+            <p>{{ notification.time_of_notification }} -- {{ notification.description }}<p>
+            <p></p>
+        {% else %}
+            <p><strong>{{ notification.time_of_notification }} -- {{ notification.description }}</strong><p>
+            <p></p>
+        {% endif %}
 
 
-	{% endfor %}
+    {% endfor %}
 
 {% else %}
-	<p>You have zero notifications</p>
+    <p>You have zero notifications</p>
 {% endif %}
 </div>
 </div>

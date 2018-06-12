@@ -44,9 +44,9 @@ class UserManager(BaseUserManager):
 class User(AbstractBaseUser):
     """Creating a custom User model."""
     email = models.EmailField(max_length=255, unique=True)
-    active = models.BooleanField(default=True)  #can login
-    staff = models.BooleanField(default=False)  #staff user non superuser
-    admin = models.BooleanField(default=False)  #superuser
+    active = models.BooleanField(default=True)  # can login
+    staff = models.BooleanField(default=False)  # staff user non superuser
+    admin = models.BooleanField(default=False)  # superuser
 
     USERNAME_FIELD = 'email'
     # USERNAME_FIELD and password are required by default
@@ -133,9 +133,11 @@ class Position(models.Model):
     project = models.ForeignKey(Project, on_delete=True,
                                 related_name='project_positions')
     hours_per_week = models.IntegerField(default=0)
-    position_filled_user = models.ForeignKey(User, on_delete=True,
-                                        related_name='my_position_for_project',
-                                        blank=True, null=True)
+    position_filled_user = models.ForeignKey(User,
+                                             on_delete=True,
+                                         related_name='my_position_for_project',
+                                             blank=True,
+                                             null=True)
 
 
 class Application(models.Model):

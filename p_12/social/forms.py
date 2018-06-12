@@ -7,8 +7,10 @@ from . import models
 
 class UserCreateForm(UserCreationForm):
     """
+    
     I am overriding the standard UserCreationForm
     to manipulate the fields a bit
+
     """
 
     class Meta:
